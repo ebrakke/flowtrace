@@ -10,46 +10,44 @@ metadata:
 
 # FlowTrace
 
-Use this skill when the user wants a source-level code walkthrough that they can navigate, not just a prose explanation. FlowTrace creates `.flow.json` artifacts containing real repository file paths, line numbers, labels, branches, confidence, and resolution metadata.
+Use this skill when the user wants a source-level code walkthrough that they can navigate, not just a prose explanation. FlowTrace creates `.flow.json` artifacts containing real repository file paths, line numbers, labels, anchors, branches, confidence, and resolution metadata.
 
 Do not treat FlowTrace as runtime tracing, instrumentation, log analysis, distributed tracing, profiling, or observability telemetry. The output is a static code walkthrough artifact for developer exploration.
+
+## Important model boundary
+
+You, the coding agent, do the research and reasoning. Do not expect the FlowTrace CLI to call an LLM or infer the final flow for you. The CLI is a deterministic artifact helper: it gathers candidate context, creates rough search scaffolds, validates artifacts, and prints trees.
 
 ## Workflow
 
 1. Confirm the repository root and the flow to trace. Ask a brief clarification only if the request is ambiguous.
-2. Build a FlowTrace artifact from the repository root:
+2. Gather candidate context from the repository root:
 
    ```bash
-   flowtrace build --root . "walk me through the data flow for running this query"
+   flowtrace context --root . "walk me through the data flow for running this query"
    ```
 
-   If `flowtrace` is not installed but the FlowTrace repository is checked out at the current root, run:
+3. Inspect the relevant files yourself with your normal code-reading tools. Decide the real flow nodes, labels, child order, branches, summaries, and anchors.
+4. Write `.flowtrace/<slug>.flow.json` yourself. Prefer nodes with stable jump metadata:
 
-   ```bash
-   go run ./packages/cli/cmd/flowtrace build --root . "walk me through the data flow for running this query"
+   ```json
+   {
+     "id": "node-1",
+     "label": "runQuery coordinates execution",
+     "kind": "service",
+     "file": "src/query.ts",
+     "line": 42,
+     "column": 1,
+     "symbol": "runQuery",
+     "anchor": "function runQuery(",
+     "summary": "Validates, executes, and formats the query.",
+     "confidence": 0.9,
+     "resolution": "manual",
+     "children": ["node-2"]
+   }
    ```
 
-3. Prefer deterministic search-only output when API keys are unavailable or reproducibility matters:
-
-   ```bash
-   flowtrace build --root . --provider none --out .flowtrace/query-flow.flow.json "walk me through the data flow for running this query"
-   ```
-
-4. Use LLM-assisted output only when the user/environment provides credentials:
-
-   ```bash
-   export ANTHROPIC_API_KEY=...
-   flowtrace build --root . --provider anthropic "walk through the request flow"
-   ```
-
-   or:
-
-   ```bash
-   export OPENAI_API_KEY=...
-   flowtrace build --root . --provider openai "walk through the request flow"
-   ```
-
-5. Validate the artifact path printed by `build`:
+5. Validate the artifact:
 
    ```bash
    flowtrace validate --root . .flowtrace/<slug>.flow.json
@@ -67,6 +65,16 @@ Do not treat FlowTrace as runtime tracing, instrumentation, log analysis, distri
    :FlowTraceOpen .flowtrace/<slug>.flow.json
    ```
 
+## Scaffold option
+
+If you want a rough starting artifact, run:
+
+```bash
+flowtrace build --root . --out .flowtrace/<slug>.flow.json "walk me through the data flow for running this query"
+```
+
+Treat this as a search-based scaffold only. Review and edit it before presenting it as the final walkthrough.
+
 ## Output expectations
 
 Return a concise summary with:
@@ -74,6 +82,6 @@ Return a concise summary with:
 - artifact path
 - validation command and result
 - Neovim open command
-- caveats for nodes marked `search` or `llm_inferred`
+- caveats for nodes marked `search` or low confidence
 
 If validation fails, report the validation error and do not present the artifact as ready to use.

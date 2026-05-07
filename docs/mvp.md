@@ -54,10 +54,12 @@ MVP components:
 
 1. **`flowtrace` CLI**
    - accepts a natural-language request
-   - searches/analyzes the repository
-   - uses an LLM, plus search/AST/LSP where possible, to produce a structured flow
-   - validates file paths, symbols, and line numbers
-   - emits a `.flow.json` artifact
+   - searches the repository for candidate context
+   - emits deterministic scaffold `.flow.json` artifacts
+   - validates file paths, symbols, references, and line numbers
+   - prints artifacts for terminal debugging
+
+FlowTrace intentionally leaves LLM reasoning to the calling coding agent (Claude Code, Codex, Cursor, etc.). The CLI is an artifact/context/validation tool, not an LLM client.
 
 2. **Neovim plugin**
    - opens a `.flow.json` artifact
@@ -87,10 +89,11 @@ Outputs:
 The CLI should:
 
 - collect repository context
-- use ripgrep / AST / optional LSP
-- ask an LLM to identify relevant flow nodes
+- emit candidate snippets with `flowtrace context`
+- create a deterministic search scaffold with `flowtrace build`
 - validate every file path exists
-- resolve line numbers from symbol or text matches
+- validate child/branch references
+- support stable anchors/symbols for jump-time resolution
 - emit structured JSON
 
 #### Neovim
@@ -130,7 +133,7 @@ MVP language: **Go**
 Reasons:
 
 - simple distribution as a single CLI binary
-- strong standard-library support for JSON, validation, filesystem walking, and HTTP LLM calls
+- strong standard-library support for JSON, validation, and filesystem walking
 - works well as a repository-agnostic tool across language ecosystems
 - can still shell out to `ripgrep`, LSP servers, or language-specific analyzers later
 
@@ -258,10 +261,16 @@ Options:
 --out .flowtrace/query.flow.json
 --max-files 80
 --max-nodes 40
---provider anthropic
---model claude-3-5-haiku-latest
 --dry-run
 ```
+
+#### `flowtrace context`
+
+```bash
+flowtrace context "walk through the data flow for running this query"
+```
+
+Prints candidate files/snippets for a coding agent to use while authoring a high-quality `.flow.json` artifact.
 
 #### `flowtrace validate`
 
@@ -324,31 +333,21 @@ For each candidate file:
 
 Limit total tokens.
 
-### Step 3: Ask LLM for a draft flow
+### Step 3: Agent authors the flow
 
-Prompt the LLM for strict JSON:
+The calling coding agent uses the candidate snippets plus its own code-reading tools to author strict `.flow.json`. Each node should reference a real file and preferably include a stable `anchor` and/or `symbol` for jump-time resolution.
 
-```text
-You are building a jumpable code walkthrough.
-
-User request:
-{request}
-
-Candidate files/snippets:
-{snippets}
-
-Return a flow graph with nodes. Each node must reference a real file and a symbol or text anchor.
-Do not invent files. Prefer important data/control-flow steps. Include branches only when they affect understanding.
-```
-
-LLM returns draft nodes with:
+Agent-authored nodes include:
 
 - label
 - file
-- symbol or text anchor
-- reason
+- line
+- symbol and/or text anchor
+- summary
 - children
 - branches
+
+`flowtrace build` can emit a deterministic search scaffold, but this is intentionally not treated as the final intelligent flow.
 
 ### Step 4: Validate locations
 
@@ -488,7 +487,7 @@ Tasks:
 
 - implement `flowtrace validate`
 - implement `flowtrace print`
-- schema checking with Zod
+- schema checking in Go
 
 Success criteria:
 
@@ -499,19 +498,20 @@ flowtrace print .flowtrace/foo.flow.json
 
 works.
 
-### Milestone 3: LLM-generated draft flow
+### Milestone 3: Agent-authored draft flow
 
 Tasks:
 
-- implement `flowtrace build "request"`
+- implement `flowtrace context "request"`
+- implement deterministic `flowtrace build "request"` scaffolds
 - add repository search
 - add snippet collection
-- add LLM JSON generation
+- document the Agent Skill workflow where the calling coding agent authors the final JSON
 - add artifact emission
 
 Success criteria:
 
-The CLI produces a usable flow for a small TypeScript repo.
+A coding agent can use FlowTrace CLI context/validation to produce a usable flow for a small repository.
 
 ### Milestone 4: Better resolution
 
@@ -537,7 +537,7 @@ Tasks:
 1. Create `flowtrace.nvim` viewer against hand-written JSON.
 2. Create schema and sample flow file.
 3. Add `flowtrace validate`.
-4. Add `flowtrace build` with basic LLM generation.
+4. Add `flowtrace context` and deterministic `flowtrace build` scaffolding.
 5. Iterate on real repository examples.
 
 This avoids getting stuck on analysis before proving the editor UX.

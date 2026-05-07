@@ -4,7 +4,6 @@
 
 - Go 1.22+
 - Neovim 0.9+ for plugin smoke testing
-- Optional API key for LLM-assisted CLI builds
 
 ## Common commands
 
@@ -12,14 +11,15 @@
 go test ./packages/cli/...
 go run ./packages/cli/cmd/flowtrace validate --root . examples/simple.flow.json
 go run ./packages/cli/cmd/flowtrace print examples/simple.flow.json
-go run ./packages/cli/cmd/flowtrace build --root . --provider none "walk through flowtrace validation"
+go run ./packages/cli/cmd/flowtrace context --root . "walk through flowtrace validation"
+go run ./packages/cli/cmd/flowtrace build --root . "walk through flowtrace validation"
 ```
 
 ## Repository conventions
 
 - Generated local artifacts belong in `.flowtrace/*.flow.json` and are gitignored.
 - Keep the CLI dependency-light; it currently uses the Go standard library.
-- Avoid committing secrets. LLM providers read API keys from environment variables.
+- The CLI should stay deterministic and should not call LLM providers; coding agents do the research/reasoning.
 - The Agent Skill package is canonical at `skills/flowtrace`.
 - Plugin UX is still MVP; avoid broad plugin rewrites unless they are the task at hand.
 

@@ -2,9 +2,9 @@
 
 FlowTrace turns natural-language code exploration requests into validated, jumpable code walkthrough artifacts.
 
-Instead of asking an LLM for only a prose summary of a codebase, FlowTrace produces a `.flow.json` map of real source files, functions, branches, and data transformations. The CLI generates and validates the artifact; the Neovim plugin opens it as an interactive tree you can jump through.
+Instead of asking an AI agent for only a prose summary of a codebase, FlowTrace produces a `.flow.json` map of real source files, functions, branches, and data transformations. The CLI provides deterministic repository context, scaffold generation, validation, and printing; your coding agent does the research/reasoning and writes the final artifact. The Neovim plugin opens the artifact as an interactive tree you can jump through.
 
-Status: early public MVP. The CLI is usable today with deterministic search-only output or optional LLM assistance. The Neovim plugin can be installed directly from the public GitHub repository with lazy.nvim/LazyVim.
+Status: early public MVP. The CLI intentionally does not call LLM APIs. Use it from Claude Code, Codex, Cursor, or another coding agent as a deterministic artifact tool. The Neovim plugin can be installed directly from the public GitHub repository with lazy.nvim/LazyVim.
 
 ## Repository layout
 
@@ -20,7 +20,6 @@ examples/            sample app and sample .flow.json artifact
 
 - Go 1.22+
 - Neovim 0.9+ for the plugin
-- Optional: `ANTHROPIC_API_KEY` or `OPENAI_API_KEY` for LLM-assisted traces
 - Optional: Node.js/npm only if you install the Agent Skill with `npx skills`
 
 ## Install the CLI
@@ -34,16 +33,19 @@ go install github.com/ebrakke/flowtrace/packages/cli/cmd/flowtrace@latest
 Then from any repository you want to explore:
 
 ```bash
-flowtrace build --root . --provider none "walk through the main request flow"
+flowtrace build --root . "walk through the main request flow"
 flowtrace validate --root . .flowtrace/walk-through-the-main-request-flow.flow.json
 flowtrace print .flowtrace/walk-through-the-main-request-flow.flow.json
 ```
 
-Provider notes:
+Agent workflow:
 
-- `--provider none` is deterministic and uses repository search results only.
-- `--provider auto` uses `ANTHROPIC_API_KEY` first, then `OPENAI_API_KEY`, if available.
-- `--provider anthropic` and `--provider openai` require the matching API key.
+- `flowtrace context "request"` prints candidate files/snippets for your coding agent.
+- The agent uses its own model/context tools to decide the real flow and writes `.flowtrace/<name>.flow.json`.
+- `flowtrace validate` checks paths, line ranges, references, and schema shape.
+- `flowtrace print` previews the tree in a terminal.
+
+`flowtrace build` is a deterministic search-based scaffold generator. It is useful as a starting point, but agent-authored artifacts should usually be better.
 
 ## Install the Neovim / LazyVim plugin
 
@@ -93,7 +95,6 @@ Generate a deterministic search-only walkthrough for this repository:
 ```bash
 go run ./packages/cli/cmd/flowtrace build \
   --root . \
-  --provider none \
   --out .flowtrace/flowtrace-build.flow.json \
   "walk through the flowtrace build command"
 

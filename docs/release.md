@@ -32,6 +32,6 @@
 
 ## Current MVP limitations to mention in releases
 
-- Search-only builds are heuristic and may mark nodes with `resolution: search`.
-- LLM-assisted builds require Anthropic or OpenAI API keys.
+- `flowtrace build` is a deterministic search scaffold and may mark nodes with `resolution: search`.
+- High-quality flows are expected to be authored by the calling coding agent, then validated with the CLI.
 - The Neovim plugin lives in `packages/nvim`, so lazy.nvim installs from the public repo with a small runtimepath config block.

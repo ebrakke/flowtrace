@@ -2,7 +2,6 @@ package core
 
 import (
 	"bytes"
-	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -15,7 +14,6 @@ import (
 type BuildOptions struct {
 	Root, Out          string
 	MaxFiles, MaxNodes int
-	Provider, Model    string
 	DryRun             bool
 	Request            string
 }
@@ -46,10 +44,7 @@ func Build(o BuildOptions) error {
 		fmt.Println(snips)
 		return nil
 	}
-	flow, err := buildWithLLM(o, snips)
-	if err != nil || flow == nil {
-		flow = heuristicFlow(o, cands)
-	}
+	flow := heuristicFlow(o, cands)
 	if err := normalizeAndResolve(flow, o.Root, cands); err != nil {
 		return err
 	}
@@ -273,12 +268,4 @@ func labelFromMatch(file, text string) string {
 		return text
 	}
 	return file
-}
-
-func parseFlowJSON(b []byte) (*Flow, error) {
-	var f Flow
-	if err := json.Unmarshal(b, &f); err != nil {
-		return nil, err
-	}
-	return &f, nil
 }

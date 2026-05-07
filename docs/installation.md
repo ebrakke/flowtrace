@@ -1,6 +1,6 @@
 # Installation and Usage
 
-This guide shows how to install FlowTrace from the public GitHub repository, generate a walkthrough artifact, view it in Neovim, and install the Agent Skill.
+This guide shows how to install FlowTrace from the public GitHub repository, generate or validate a walkthrough artifact, view it in Neovim, and install the Agent Skill.
 
 ## 1. Install the CLI
 
@@ -24,31 +24,31 @@ flowtrace --help
 
 ## 2. Generate a FlowTrace artifact
 
-From any repository you want to explore, search-only mode is best for first use because it does not need network access or API keys:
+FlowTrace is designed for coding agents. The CLI does not call LLM APIs; it gives the agent deterministic tools for repository context, scaffolding, validation, and terminal preview.
+
+From any repository you want to explore:
+
+```bash
+flowtrace context --root . "walk through the main request flow"
+```
+
+Use that output plus your agent's own code-reading tools to author a `.flow.json` artifact, then validate it:
+
+```bash
+flowtrace validate --root . .flowtrace/main-request-flow.flow.json
+flowtrace print .flowtrace/main-request-flow.flow.json
+```
+
+For a quick deterministic scaffold, use `build`:
 
 ```bash
 flowtrace build \
   --root . \
-  --provider none \
   --out .flowtrace/flowtrace-build.flow.json \
   "walk through the main request flow"
 
 flowtrace validate --root . .flowtrace/flowtrace-build.flow.json
 flowtrace print .flowtrace/flowtrace-build.flow.json
-```
-
-LLM-assisted mode can produce better labels and ordering:
-
-```bash
-export ANTHROPIC_API_KEY=...
-flowtrace build --root . --provider anthropic "walk through the CLI validation path"
-```
-
-or:
-
-```bash
-export OPENAI_API_KEY=...
-flowtrace build --root . --provider openai "walk through the CLI validation path"
 ```
 
 Generated artifacts default to `.flowtrace/<slug>.flow.json`. They are ignored by git so local traces do not pollute commits.
@@ -126,4 +126,4 @@ mkdir -p ~/.agents/skills
 cp -R flowtrace/skills/flowtrace ~/.agents/skills/flowtrace
 ```
 
-The skill instructs compatible agents to use FlowTrace for code walkthrough artifacts: generate a `.flow.json`, validate it, and tell the user how to open it in Neovim.
+The skill instructs compatible agents to use their own reasoning/code-reading abilities to create a `.flow.json`, then validate and preview it with the FlowTrace CLI.
