@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1180" height="390" viewBox="0 0 1180 390">
+  <rect width="100%" height="100%" rx="14" fill="#11111b"/>
+  <rect x="0" y="0" width="100%" height="42" rx="14" fill="#181825"/>
+  <circle cx="24" cy="21" r="6" fill="#f38ba8"/><circle cx="46" cy="21" r="6" fill="#f9e2af"/><circle cx="68" cy="21" r="6" fill="#a6e3a1"/>
+  <text x="96" y="27" fill="#a6adc8" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="14">flowtrace print examples/flowtrace-lifecycle.flow.json</text>
+  <text x="28" y="75" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="14">Flow: FlowTrace lifecycle: agent-authored walkthrough to Neovim navigation</text>
+<text x="28" y="96" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="14">└─ Agent researches the requested code flow 100% [agent] skills/flowtrace/SKILL.md:20</text>
+<text x="28" y="117" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="14">   ├─ CLI entrypoint dispatches helper commands 100% [cli] packages/cli/cmd/flowtrace/main.go:11</text>
+<text x="28" y="138" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="14">   │  ├─ build/context collect deterministic candidate snippets 95% [context] packages/cli/internal/core/build.go:30</text>
+<text x="28" y="159" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="14">   │  └─ validate checks references before the user opens the artifact 100% [validation] packages/cli/internal/core/validate.go:9</text>
+<text x="28" y="180" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="14">   │     └─ print renders a terminal preview 100% [preview] packages/cli/internal/core/print.go:9</text>
+<text x="28" y="201" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="14">   │        └─ :FlowTraceOpen loads the artifact in Neovim 100% [neovim] packages/nvim/lua/flowtrace/init.lua:56</text>
+<text x="28" y="222" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="14">   │           ├─ parser.load decodes and sanity-checks JSON 100% [parser] packages/nvim/lua/flowtrace/parser.lua:3</text>
+<text x="28" y="243" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="14">   │           └─ tree.render flattens nodes into a readable buffer 100% [render] packages/nvim/lua/flowtrace/tree.lua:66</text>
+<text x="28" y="264" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="14">   │              └─ jump resolves anchors at navigation time 100% [navigation] packages/nvim/lua/flowtrace/actions.lua:85</text>
+<text x="28" y="285" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="14">   └─ Agent writes the final .flow.json artifact 100% [artifact] docs/flow-schema.md:5</text>
+<text x="28" y="306" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="14">      └─ print renders a terminal preview 100% [preview] packages/cli/internal/core/print.go:9</text>
+<text x="28" y="327" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="14">         ↳ already shown</text>
+</svg>

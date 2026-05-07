@@ -6,6 +6,18 @@ Instead of asking an AI agent for only a prose summary of a codebase, FlowTrace 
 
 Status: early public MVP. The CLI intentionally does not call LLM APIs. Use it from Claude Code, Codex, Cursor, or another coding agent as a deterministic artifact tool. The Neovim plugin can be installed directly from the public GitHub repository with lazy.nvim/LazyVim.
 
+## Screenshots
+
+FlowTrace opens a persistent tree next to the source, with colored metadata and jumpable file anchors:
+
+![FlowTrace Neovim tree next to source code](docs/assets/flowtrace-neovim.png)
+
+The same artifact can be inspected in the terminal before opening Neovim:
+
+![FlowTrace terminal tree preview](docs/assets/flowtrace-terminal.png)
+
+The artifact used for these screenshots is [`examples/flowtrace-lifecycle.flow.json`](examples/flowtrace-lifecycle.flow.json).
+
 ## Repository layout
 
 ```text
