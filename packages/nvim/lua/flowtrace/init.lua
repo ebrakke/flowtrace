@@ -7,6 +7,28 @@ local M = {}
 local state = { expanded = {} }
 local ns = vim.api.nvim_create_namespace('flowtrace')
 
+local function flow_files()
+  local files = vim.fn.glob('.flowtrace/*.flow.json', false, true)
+  table.sort(files, function(a, b)
+    local uv = vim.uv or vim.loop
+    local astat = uv.fs_stat(a)
+    local bstat = uv.fs_stat(b)
+    local atime = astat and astat.mtime and astat.mtime.sec or 0
+    local btime = bstat and bstat.mtime and bstat.mtime.sec or 0
+    if atime == btime then return a < b end
+    return atime < btime
+  end)
+  return files
+end
+
+local function current_flow_index(files)
+  local current = state.path and vim.fn.fnamemodify(state.path, ':p') or nil
+  for i, file in ipairs(files) do
+    if vim.fn.fnamemodify(file, ':p') == current then return i end
+  end
+  return nil
+end
+
 local function setup_highlights()
   -- Explicit colors instead of only linking to theme groups. Some themes make
   -- Directory/Type/Comment very close to Normal, which made FlowTrace look flat.
@@ -44,6 +66,10 @@ end
 local function setup_keys()
   map('<CR>', function() actions.jump(state) end)
   map('p', function() actions.preview(state) end)
+  map('f', function() M.next() end)
+  map('F', function() M.prev() end)
+  map(']f', function() M.next() end)
+  map('[f', function() M.prev() end)
   map('?', function() actions.details(state) end)
   map('q', function() M.close() end)
   map('r', function() M.refresh() end)
@@ -55,21 +81,41 @@ end
 
 function M.open(path)
   setup_highlights()
-  state.source_win = vim.api.nvim_get_current_win()
+  local current_win = vim.api.nvim_get_current_win()
+  local current_buf = vim.api.nvim_win_get_buf(current_win)
+  if vim.bo[current_buf].filetype ~= 'flowtrace' then
+    state.source_win = current_win
+  end
   state.path = path
   state.flow = parser.load(path)
   state.expanded = state.expanded or {}
+  if state.buf and vim.api.nvim_buf_is_valid(state.buf) and state.win and vim.api.nvim_win_is_valid(state.win) then
+    redraw()
+    return
+  end
   state.buf, state.win = window.open_buffer()
   setup_keys()
   redraw()
 end
 
 function M.last()
-  local files = vim.fn.glob('.flowtrace/*.flow.json', false, true)
-  table.sort(files)
-  local path = files[#files]
-  if not path then error('FlowTrace: no .flowtrace/*.flow.json found') end
-  M.open(path)
+  local files = flow_files()
+  if #files == 0 then error('FlowTrace: no .flowtrace/*.flow.json found') end
+  M.open(files[#files])
+end
+
+function M.next()
+  local files = flow_files()
+  if #files == 0 then error('FlowTrace: no .flowtrace/*.flow.json found') end
+  local idx = current_flow_index(files) or 0
+  M.open(files[(idx % #files) + 1])
+end
+
+function M.prev()
+  local files = flow_files()
+  if #files == 0 then error('FlowTrace: no .flowtrace/*.flow.json found') end
+  local idx = current_flow_index(files) or (#files + 1)
+  M.open(files[((idx - 2) % #files) + 1])
 end
 
 function M.refresh()

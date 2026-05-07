@@ -11,6 +11,14 @@ vim.api.nvim_create_user_command('FlowTraceLast', function()
   require('flowtrace').last()
 end, {})
 
+vim.api.nvim_create_user_command('FlowTraceNext', function()
+  require('flowtrace').next()
+end, {})
+
+vim.api.nvim_create_user_command('FlowTracePrev', function()
+  require('flowtrace').prev()
+end, {})
+
 vim.api.nvim_create_user_command('FlowTraceClose', function()
   require('flowtrace').close()
 end, {})

@@ -65,7 +65,7 @@ function M.render(flow, expanded)
   local index = {}
   local highlights = {}
   add_line(lines, index, highlights, 'Flow: ' .. (flow.title or flow.id or 'untitled'), nil, nil, 'FlowTraceTitle')
-  add_line(lines, index, highlights, 'Press <CR> jump • o toggle • p preview • ? details • r reload • q close', nil, nil, 'FlowTraceHelp')
+  add_line(lines, index, highlights, 'Press <CR> jump • o toggle • f/F next/prev flow • p preview • ? details • r reload • q close', nil, nil, 'FlowTraceHelp')
   add_line(lines, index, highlights, '', nil, nil, nil)
   add_node(lines, index, highlights, flow, expanded, flow.root, 0, nil, {})
   return lines, index, highlights
