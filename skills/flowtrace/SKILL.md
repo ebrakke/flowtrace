@@ -10,25 +10,22 @@ metadata:
 
 # FlowTrace
 
-Use this skill when the user wants a source-level code walkthrough that they can navigate, not just a prose explanation. FlowTrace creates `.flow.json` artifacts containing real repository file paths, line numbers, labels, anchors, branches, confidence, and resolution metadata.
+Use this skill when the user wants a source-level code walkthrough that they can navigate, not just a prose explanation. FlowTrace artifacts are `.flow.json` files containing real repository file paths, line numbers, labels, anchors, branches, confidence, and resolution metadata.
 
 Do not treat FlowTrace as runtime tracing, instrumentation, log analysis, distributed tracing, profiling, or observability telemetry. The output is a static code walkthrough artifact for developer exploration.
 
-## Important model boundary
+## Core principle
 
-You, the coding agent, do the research and reasoning. Do not expect the FlowTrace CLI to call an LLM or infer the final flow for you. The CLI is a deterministic artifact helper: it gathers candidate context, creates rough search scaffolds, validates artifacts, and prints trees.
+You, the coding agent, build the understanding. FlowTrace is only the artifact format, validator, terminal previewer, and Neovim viewer.
+
+Do **not** start by asking the FlowTrace CLI to explore a natural-language request. First use your normal code-reading tools to inspect the repository: search, read files, follow imports/callers/callees, inspect tests, and reason about the lifecycle. Only after you understand the flow should you write and validate the `.flow.json` artifact.
 
 ## Workflow
 
 1. Confirm the repository root and the flow to trace. Ask a brief clarification only if the request is ambiguous.
-2. Gather candidate context from the repository root:
-
-   ```bash
-   flowtrace context --root . "walk me through the data flow for running this query"
-   ```
-
-3. Inspect the relevant files yourself with your normal code-reading tools. Decide the real flow nodes, labels, child order, branches, summaries, and anchors.
-4. Write `.flowtrace/<slug>.flow.json` yourself. Prefer nodes with stable jump metadata:
+2. Research the codebase yourself. Use your own tools to find entrypoints, handlers, services, data transformations, branches, downstream calls, response formatting, and important alternatives. Follow real code references; do not rely on FlowTrace to infer them.
+3. Decide the walkthrough structure: root node, important child order, branch targets, labels, summaries, confidence, and resolution values.
+4. Write `.flowtrace/<slug>.flow.json` yourself. Create the directory if needed. Prefer stable jump metadata on every node:
 
    ```json
    {
@@ -47,33 +44,33 @@ You, the coding agent, do the research and reasoning. Do not expect the FlowTrac
    }
    ```
 
-5. Validate the artifact:
+5. Validate the finished artifact:
 
    ```bash
    flowtrace validate --root . .flowtrace/<slug>.flow.json
    ```
 
-6. Optionally inspect the walkthrough in the terminal:
+6. Preview the tree in the terminal:
 
    ```bash
    flowtrace print .flowtrace/<slug>.flow.json
    ```
 
-7. Tell the user how to open it in Neovim:
+7. Fix any validation/preview issues by editing the JSON. Repeat validation until clean.
+8. Tell the user how to open it in Neovim:
 
    ```vim
    :FlowTraceOpen .flowtrace/<slug>.flow.json
    ```
 
-## Scaffold option
+## Optional CLI helpers
 
-If you want a rough starting artifact, run:
+These are optional helpers, not the primary workflow:
 
-```bash
-flowtrace build --root . --out .flowtrace/<slug>.flow.json "walk me through the data flow for running this query"
-```
+- `flowtrace context --root . "request"` prints candidate search snippets if you want a quick hint list.
+- `flowtrace build --root . --out .flowtrace/<slug>.flow.json "request"` creates a rough search-based scaffold.
 
-Treat this as a search-based scaffold only. Review and edit it before presenting it as the final walkthrough.
+Treat CLI-generated scaffolds as disposable drafts. Review and rewrite them before presenting a final walkthrough.
 
 ## Output expectations
 
@@ -81,7 +78,8 @@ Return a concise summary with:
 
 - artifact path
 - validation command and result
+- terminal preview command used
 - Neovim open command
-- caveats for nodes marked `search` or low confidence
+- caveats for nodes marked `search`, `llm_inferred`, or low confidence
 
 If validation fails, report the validation error and do not present the artifact as ready to use.

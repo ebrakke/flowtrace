@@ -24,22 +24,16 @@ flowtrace --help
 
 ## 2. Generate a FlowTrace artifact
 
-FlowTrace is designed for coding agents. The CLI does not call LLM APIs; it gives the agent deterministic tools for repository context, scaffolding, validation, and terminal preview.
+FlowTrace is designed for coding agents. The CLI does not call LLM APIs or infer the final flow from a natural-language request. Your coding agent should first inspect the repository with its normal tools, follow the real code lifecycle, and write `.flowtrace/<slug>.flow.json` itself.
 
-From any repository you want to explore:
-
-```bash
-flowtrace context --root . "walk through the main request flow"
-```
-
-Use that output plus your agent's own code-reading tools to author a `.flow.json` artifact, then validate it:
+After the agent writes the artifact, use the CLI to validate and preview it:
 
 ```bash
 flowtrace validate --root . .flowtrace/main-request-flow.flow.json
 flowtrace print .flowtrace/main-request-flow.flow.json
 ```
 
-For a quick deterministic scaffold, use `build`:
+For a quick deterministic scaffold or hint list, use `build` or `context` as optional helpers:
 
 ```bash
 flowtrace build \
