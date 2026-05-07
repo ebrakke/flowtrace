@@ -16,7 +16,7 @@ The same artifact can be inspected in the terminal before opening Neovim:
 
 ![FlowTrace terminal tree preview](docs/assets/flowtrace-terminal.png)
 
-The artifact used for these screenshots is [`examples/flowtrace-lifecycle.flow.json`](examples/flowtrace-lifecycle.flow.json).
+The artifact used for these screenshots is [`examples/flowtrace-happy-path.flow.json`](examples/flowtrace-happy-path.flow.json).
 
 ## Repository layout
 
@@ -103,14 +103,14 @@ go run ./packages/cli/cmd/flowtrace print examples/simple.flow.json
 Preview the included lifecycle artifact:
 
 ```bash
-go run ./packages/cli/cmd/flowtrace validate --root . examples/flowtrace-lifecycle.flow.json
-go run ./packages/cli/cmd/flowtrace print examples/flowtrace-lifecycle.flow.json
+go run ./packages/cli/cmd/flowtrace validate --root . examples/flowtrace-happy-path.flow.json
+go run ./packages/cli/cmd/flowtrace print examples/flowtrace-happy-path.flow.json
 ```
 
 Open the artifact in Neovim after installing the plugin:
 
 ```vim
-:FlowTraceOpen examples/flowtrace-lifecycle.flow.json
+:FlowTraceOpen examples/flowtrace-happy-path.flow.json
 ```
 
 ## Install the Agent Skill

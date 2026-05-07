@@ -1,10 +1,5 @@
 local M = {}
 
-local function pct(n)
-  if not n.confidence then return nil end
-  return string.format('%d%%', math.floor((n.confidence * 100) + 0.5))
-end
-
 local function clean(text)
   return (text or ''):gsub('%s+', ' '):gsub('^%s+', ''):gsub('%s+$', '')
 end
@@ -37,10 +32,12 @@ local function add_node(lines, index, highlights, flow, expanded, id, depth, bra
   end
 
   local meta_parts = {}
-  if node.kind then table.insert(meta_parts, node.kind) end
-  if pct(node) then table.insert(meta_parts, pct(node)) end
-  if node.resolution then table.insert(meta_parts, node.resolution) end
-  add_line(lines, index, highlights, prefix .. '  ' .. table.concat(meta_parts, ' • '), id, node, 'FlowTraceMeta')
+  if node.kind then table.insert(meta_parts, 'type: ' .. node.kind) end
+  if node.resolution and node.resolution ~= 'manual' then table.insert(meta_parts, 'source: ' .. node.resolution) end
+  if node.confidence and node.confidence > 0 and node.confidence < 0.75 then table.insert(meta_parts, 'low confidence') end
+  if #meta_parts > 0 then
+    add_line(lines, index, highlights, prefix .. '  ' .. table.concat(meta_parts, ' • '), id, node, 'FlowTraceMeta')
+  end
   add_line(lines, index, highlights, prefix .. '  file: ' .. (node.file or '?') .. ':' .. tostring(node.line or '?'), id, node, 'FlowTraceFile')
 
   local summary = clean(node.summary)

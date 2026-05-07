@@ -17,7 +17,10 @@
       "summary": "The skill tells the calling coding agent to inspect the repository and build understanding itself. FlowTrace is the artifact format, validator, terminal previewer, and Neovim viewer.",
       "confidence": 1,
       "resolution": "manual",
-      "children": ["node-2", "node-3"]
+      "children": [
+        "node-2",
+        "node-3"
+      ]
     },
     "node-2": {
       "id": "node-2",
@@ -31,7 +34,10 @@
       "summary": "The Go CLI dispatches build, context, validate, and print. The context/build commands are deterministic helpers; they do not call an LLM.",
       "confidence": 1,
       "resolution": "manual",
-      "children": ["node-4", "node-5"]
+      "children": [
+        "node-4",
+        "node-5"
+      ]
     },
     "node-3": {
       "id": "node-3",
@@ -45,7 +51,9 @@
       "summary": "A FlowTrace artifact is a schemaVersion, root node id, and node map. Nodes point at real files and can include stable anchors/symbols for jump-time resolution.",
       "confidence": 1,
       "resolution": "manual",
-      "children": ["node-6"]
+      "children": [
+        "node-6"
+      ]
     },
     "node-4": {
       "id": "node-4",
@@ -72,7 +80,9 @@
       "summary": "Validation checks required top-level fields, node ids, file existence, line ranges, resolution values, and child/branch targets.",
       "confidence": 1,
       "resolution": "manual",
-      "children": ["node-6"]
+      "children": [
+        "node-6"
+      ]
     },
     "node-6": {
       "id": "node-6",
@@ -86,7 +96,9 @@
       "summary": "The print command walks the root node, recursively renders child and branch targets, and helps catch shape issues before opening Neovim.",
       "confidence": 1,
       "resolution": "manual",
-      "children": ["node-7"]
+      "children": [
+        "node-7"
+      ]
     },
     "node-7": {
       "id": "node-7",
@@ -100,7 +112,10 @@
       "summary": "The Neovim command calls M.open, which loads JSON, creates the FlowTrace pane, installs keymaps, and redraws the tree.",
       "confidence": 1,
       "resolution": "manual",
-      "children": ["node-8", "node-9"]
+      "children": [
+        "node-8",
+        "node-9"
+      ]
     },
     "node-8": {
       "id": "node-8",
@@ -120,14 +135,16 @@
       "label": "tree.render flattens nodes into a readable buffer",
       "kind": "render",
       "file": "packages/nvim/lua/flowtrace/tree.lua",
-      "line": 66,
+      "line": 63,
       "column": 1,
       "symbol": "M.render",
       "anchor": "function M.render(flow, expanded)",
       "summary": "Rendering builds title/help rows, label/meta/file/summary rows for each node, highlight spans, and a row-to-node index for actions.",
       "confidence": 1,
       "resolution": "manual",
-      "children": ["node-10"]
+      "children": [
+        "node-10"
+      ]
     },
     "node-10": {
       "id": "node-10",

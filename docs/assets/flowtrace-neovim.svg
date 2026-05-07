@@ -1,53 +1,48 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1280" height="760" viewBox="0 0 1280 760">
-  <defs>
-    <clipPath id="leftClip"><rect x="0" y="34" width="602" height="726"/></clipPath>
-    <clipPath id="rightClip"><rect x="628" y="34" width="628" height="726"/></clipPath>
-  </defs>
-  <rect width="100%" height="100%" fill="#1e1e2e"/>
-  <rect x="0" y="0" width="610" height="100%" fill="#181825"/>
-  <rect x="610" y="0" width="2" height="100%" fill="#313244"/>
-  <rect x="0" y="0" width="100%" height="34" fill="#11111b"/>
-  <text x="18" y="23" fill="#a6adc8" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13">FlowTrace tree</text>
-  <text x="636" y="23" fill="#a6adc8" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13">packages/nvim/lua/flowtrace/tree.lua</text>
-  <g clip-path="url(#leftClip)"><text x="24" y="62" fill="#cba6f7" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13">Flow: FlowTrace lifecycle: agent-authored walkthrough to Neovim navigation</text>
+  <defs><clipPath id="leftClip"><rect x="0" y="34" width="602" height="726"/></clipPath><clipPath id="rightClip"><rect x="628" y="34" width="628" height="726"/></clipPath></defs>
+  <rect width="100%" height="100%" fill="#1e1e2e"/><rect x="0" y="0" width="610" height="100%" fill="#181825"/><rect x="610" y="0" width="2" height="100%" fill="#313244"/><rect x="0" y="0" width="100%" height="34" fill="#11111b"/>
+  <text x="18" y="23" fill="#a6adc8" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13">FlowTrace tree</text><text x="636" y="23" fill="#a6adc8" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13">packages/nvim/lua/flowtrace/init.lua</text>
+  <g clip-path="url(#leftClip)"><text x="24" y="62" fill="#cba6f7" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13">Flow: FlowTrace happy path: agent-authored artifact to source navigation</text>
 <text x="24" y="84" fill="#6c7086" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13">Press &lt;CR&gt; jump • o toggle • p preview • ? details • r reload • q close</text>
 <text x="24" y="106" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13"></text>
-<text x="24" y="128" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13">▾ Agent researches the requested code flow</text>
-<text x="24" y="150" fill="#89b4fa" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13">  agent • 100% • manual</text>
+<text x="24" y="128" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13">▾ Agent researches the code and writes a FlowTrace artifact</text>
+<text x="24" y="150" fill="#89b4fa" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13">  type: agent</text>
 <text x="24" y="172" fill="#a6e3a1" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13">  file: skills/flowtrace/SKILL.md:20</text>
-<text x="24" y="194" fill="#9399b2" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13">  The agent researches the repo; FlowTrace validates and displays the artifact.</text>
-<text x="24" y="216" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13">  ▾ CLI entrypoint dispatches helper commands</text>
-<text x="24" y="238" fill="#89b4fa" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13">    cli • 100% • manual</text>
-<text x="24" y="260" fill="#a6e3a1" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13">    file: packages/cli/cmd/flowtrace/main.go:11</text>
-<text x="24" y="282" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13">    ▸ build/context collect deterministic candidate snippets</text>
-<text x="24" y="304" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13">    ▾ validate checks references before opening</text>
-<text x="24" y="326" fill="#89b4fa" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13">      validation • 100% • manual</text>
-<text x="24" y="348" fill="#a6e3a1" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13">      file: packages/cli/internal/core/validate.go:9</text>
-<text x="24" y="370" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13">      ▾ print renders a terminal preview</text>
-<text x="24" y="392" fill="#89b4fa" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13">        preview • 100% • manual</text>
-<text x="24" y="414" fill="#a6e3a1" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13">        file: packages/cli/internal/core/print.go:9</text>
-<text x="24" y="436" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13">        ▾ :FlowTraceOpen loads the artifact in Neovim</text>
-<text x="24" y="458" fill="#89b4fa" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13">          neovim • 100% • manual</text>
-<text x="24" y="480" fill="#a6e3a1" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13">          file: packages/nvim/lua/flowtrace/init.lua:56</text>
-<text x="24" y="502" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13">          ▸ parser.load decodes and sanity-checks JSON</text>
-<text x="24" y="524" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13">          ▾ tree.render flattens nodes into a readable buffer</text>
-<text x="24" y="546" fill="#89b4fa" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13">            render • 100% • manual</text>
-<text x="24" y="568" fill="#a6e3a1" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13">            file: packages/nvim/lua/flowtrace/tree.lua:66</text>
-<text x="24" y="590" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13">            ▸ jump resolves anchors at navigation time</text></g>
-  <g clip-path="url(#rightClip)">
-    <rect x="628" y="52" width="628" height="32" fill="#313244" opacity="0.55"/>
-    <text x="638" y="76" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="14"> 65  </text>
-<text x="638" y="98" fill="#f38ba8" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="14"> 66  function M.render(flow, expanded)</text>
-<text x="638" y="120" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="14"> 67    local lines = {}</text>
-<text x="638" y="142" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="14"> 68    local index = {}</text>
-<text x="638" y="164" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="14"> 69    local highlights = {}</text>
-<text x="638" y="186" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="14"> 70    add_line(lines, index, highlights, &#x27;Flow: &#x27; .. (flow.title or …</text>
-<text x="638" y="208" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="14"> 71    add_line(lines, index, highlights, &#x27;Press &lt;CR&gt; jump • o toggle…</text>
-<text x="638" y="230" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="14"> 72    add_line(lines, index, highlights, &#x27;&#x27;, nil, nil, nil)</text>
-<text x="638" y="252" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="14"> 73    add_node(lines, index, highlights, flow, expanded, flow.root, …</text>
-<text x="638" y="274" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="14"> 74    return lines, index, highlights</text>
-<text x="638" y="296" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="14"> 75  end</text>
-<text x="638" y="318" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="14"> 76  </text>
-<text x="638" y="340" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="14"> 77  return M</text>
-  </g>
+<text x="24" y="194" fill="#9399b2" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13">  The happy path starts with the coding agent reading the repository and authoring the JSON.</text>
+<text x="24" y="216" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13">  ▾ Artifact follows the FlowTrace schema</text>
+<text x="24" y="238" fill="#89b4fa" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13">    type: artifact</text>
+<text x="24" y="260" fill="#a6e3a1" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13">    file: packages/cli/internal/core/schema.go:10</text>
+<text x="24" y="282" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13">    ▾ User or agent runs flowtrace validate</text>
+<text x="24" y="304" fill="#89b4fa" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13">      type: cli</text>
+<text x="24" y="326" fill="#a6e3a1" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13">      file: packages/cli/cmd/flowtrace/main.go:22</text>
+<text x="24" y="348" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13">      ▾ ValidateFlow checks files, lines, and references</text>
+<text x="24" y="370" fill="#89b4fa" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13">        type: validation</text>
+<text x="24" y="392" fill="#a6e3a1" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13">        file: packages/cli/internal/core/validate.go:9</text>
+<text x="24" y="414" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13">        ▾ flowtrace print previews the tree in the terminal</text>
+<text x="24" y="436" fill="#89b4fa" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13">          type: preview</text>
+<text x="24" y="458" fill="#a6e3a1" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13">          file: packages/cli/internal/core/print.go:9</text>
+<text x="24" y="480" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13">          ▾ User opens the artifact with :FlowTraceOpen</text>
+<text x="24" y="502" fill="#89b4fa" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13">            type: neovim-command</text>
+<text x="24" y="524" fill="#a6e3a1" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13">            file: packages/nvim/plugin/flowtrace.lua:6</text>
+<text x="24" y="546" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13">            ▾ M.open loads JSON and creates the FlowTrace pane</text>
+<text x="24" y="568" fill="#89b4fa" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13">              type: neovim-controller</text>
+<text x="24" y="590" fill="#a6e3a1" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13">              file: packages/nvim/lua/flowtrace/init.lua:56</text></g>
+  <g clip-path="url(#rightClip)"><rect x="628" y="52" width="628" height="32" fill="#313244" opacity="0.55"/><text x="638" y="76" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="14"> 55  </text>
+<text x="638" y="98" fill="#f38ba8" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="14"> 56  function M.open(path)</text>
+<text x="638" y="120" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="14"> 57    setup_highlights()</text>
+<text x="638" y="142" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="14"> 58    state.source_win = vim.api.nvim_get_current_win()</text>
+<text x="638" y="164" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="14"> 59    state.path = path</text>
+<text x="638" y="186" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="14"> 60    state.flow = parser.load(path)</text>
+<text x="638" y="208" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="14"> 61    state.expanded = state.expanded or {}</text>
+<text x="638" y="230" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="14"> 62    state.buf, state.win = window.open_buffer()</text>
+<text x="638" y="252" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="14"> 63    setup_keys()</text>
+<text x="638" y="274" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="14"> 64    redraw()</text>
+<text x="638" y="296" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="14"> 65  end</text>
+<text x="638" y="318" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="14"> 66  </text>
+<text x="638" y="340" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="14"> 67  function M.last()</text>
+<text x="638" y="362" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="14"> 68    local files = vim.fn.glob(&#x27;.flowtrace/*.flow.json&#x27;, false, true)</text>
+<text x="638" y="384" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="14"> 69    table.sort(files)</text>
+<text x="638" y="406" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="14"> 70    local path = files[#files]</text>
+<text x="638" y="428" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="14"> 71    if not path then error(&#x27;FlowTrace: no .flowtrace/*.flow.json f…</text>
+<text x="638" y="450" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="14"> 72    M.open(path)</text></g>
 </svg>

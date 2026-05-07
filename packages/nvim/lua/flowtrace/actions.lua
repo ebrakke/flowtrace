@@ -118,15 +118,18 @@ function M.details(state)
   local lines = {
     '# ' .. (n.label or item.id),
     '',
-    '- kind: ' .. tostring(n.kind),
-    '- location: `' .. tostring(n.file) .. ':' .. tostring(n.line) .. '`',
-    '- symbol: `' .. tostring(n.symbol or '') .. '`',
-    '- anchor: `' .. tostring(n.anchor or '') .. '`',
-    '- resolution: ' .. tostring(n.resolution),
-    '- confidence: ' .. tostring(n.confidence or ''),
-    '',
-    n.summary or '',
+    '- type: ' .. tostring(n.kind),
+    '- file: `' .. tostring(n.file) .. ':' .. tostring(n.line) .. '`',
+    '- jump anchor: `' .. tostring(n.anchor or n.symbol or '') .. '`',
   }
+  if n.resolution and n.resolution ~= 'manual' then
+    table.insert(lines, '- source: ' .. tostring(n.resolution))
+  end
+  if n.confidence and n.confidence > 0 and n.confidence < 0.75 then
+    table.insert(lines, '- confidence: ' .. tostring(n.confidence))
+  end
+  table.insert(lines, '')
+  table.insert(lines, n.summary or '')
 
   local width = math.min(84, math.max(50, math.floor(vim.o.columns * 0.55)))
   local height = math.min(#lines + 2, math.max(10, math.floor(vim.o.lines * 0.35)))

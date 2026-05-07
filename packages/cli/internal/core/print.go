@@ -23,11 +23,7 @@ func printNode(w io.Writer, f *Flow, id, prefix string, last bool, seen map[stri
 		connector = "├─ "
 		nextPrefix = prefix + "│  "
 	}
-	conf := ""
-	if n.Confidence > 0 {
-		conf = fmt.Sprintf(" %.0f%%", n.Confidence*100)
-	}
-	fmt.Fprintf(w, "%s%s%s%s [%s] %s:%d\n", prefix, connector, n.Label, conf, n.Kind, n.File, n.Line)
+	fmt.Fprintf(w, "%s%s%s [%s] %s:%d\n", prefix, connector, n.Label, n.Kind, n.File, n.Line)
 	if seen[id] {
 		fmt.Fprintf(w, "%s   ↳ already shown\n", prefix)
 		return
