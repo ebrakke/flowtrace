@@ -1,0 +1,73 @@
+# Agent Skill Package
+
+The FlowTrace Agent Skill lives at:
+
+```text
+skills/flowtrace/SKILL.md
+```
+
+## Spec compliance
+
+Based on the primary Agent Skills specification at <https://agentskills.io/specification.md>:
+
+- A skill is a directory containing `SKILL.md`.
+- The directory name must match the required `name` frontmatter.
+- `name` must use lowercase letters, numbers, and hyphens only, with no leading/trailing hyphen or consecutive hyphens.
+- `description` is required and should explain what the skill does and when to use it.
+- Optional `license`, `compatibility`, and `metadata` fields are supported.
+
+FlowTrace uses:
+
+```yaml
+name: flowtrace
+license: MIT
+```
+
+The skill instructions are FlowTrace-specific: they tell an agent to create validated `.flow.json` code walkthrough artifacts and explain how to open those artifacts in Neovim. They are not instructions for runtime tracing, instrumentation, or observability telemetry.
+
+## Install locations
+
+The Agent Skills implementation guide documents `.agents/skills/` as a cross-client convention for local skill discovery. Manual install:
+
+```bash
+mkdir -p ~/.agents/skills
+cp -R skills/flowtrace ~/.agents/skills/flowtrace
+```
+
+Project-local install for a repository that should carry the skill with it:
+
+```bash
+mkdir -p .agents/skills
+cp -R /path/to/flowtrace/skills/flowtrace .agents/skills/flowtrace
+```
+
+## skills.sh / Skills CLI assumptions
+
+The public pages on <https://skills.sh/> show install commands in this form:
+
+```bash
+npx skills add https://github.com/<owner>/<repo> --skill <skill-name>
+```
+
+Examples published there store skills under a top-level `skills/<skill-name>/SKILL.md` path. This repository follows that layout with `skills/flowtrace/SKILL.md` so the expected publish command is:
+
+```bash
+npx skills add https://github.com/flowtrace/flowtrace --skill flowtrace
+```
+
+Actual skills.sh listing still requires the GitHub repository to be public and indexed by the skills.sh ecosystem.
+
+## Validation
+
+If the reference validator is available, run:
+
+```bash
+skills-ref validate ./skills/flowtrace
+```
+
+Without `skills-ref`, the minimal manual checks are:
+
+```bash
+test -f skills/flowtrace/SKILL.md
+grep -q '^name: flowtrace$' skills/flowtrace/SKILL.md
+```

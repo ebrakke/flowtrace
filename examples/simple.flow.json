@@ -1,0 +1,67 @@
+{
+  "schemaVersion": "0.1",
+  "id": "simple-query-flow",
+  "title": "Simple query flow",
+  "createdAt": "2026-05-07T00:00:00Z",
+  "root": "node-1",
+  "nodes": {
+    "node-1": {
+      "id": "node-1",
+      "label": "main builds a query",
+      "kind": "entrypoint",
+      "file": "examples/simple-go-app/main.go",
+      "line": 6,
+      "column": 2,
+      "summary": "The program creates a query string and passes it into runQuery.",
+      "confidence": 1,
+      "resolution": "manual",
+      "children": ["node-2"]
+    },
+    "node-2": {
+      "id": "node-2",
+      "label": "runQuery coordinates cache, execution, and formatting",
+      "kind": "service",
+      "file": "examples/simple-go-app/main.go",
+      "line": 10,
+      "column": 1,
+      "summary": "runQuery checks cache first, executes SQL on miss, then formats rows.",
+      "confidence": 1,
+      "resolution": "manual",
+      "children": ["node-4", "node-5"],
+      "branches": [{ "label": "cache hit", "target": "node-3" }]
+    },
+    "node-3": {
+      "id": "node-3",
+      "label": "return cached result",
+      "kind": "branch",
+      "file": "examples/simple-go-app/main.go",
+      "line": 11,
+      "column": 2,
+      "summary": "If lookupCache returns a value, runQuery exits early.",
+      "confidence": 1,
+      "resolution": "manual"
+    },
+    "node-4": {
+      "id": "node-4",
+      "label": "executeSQL returns rows",
+      "kind": "step",
+      "file": "examples/simple-go-app/main.go",
+      "line": 21,
+      "column": 1,
+      "summary": "The query is executed and rows are returned.",
+      "confidence": 1,
+      "resolution": "manual"
+    },
+    "node-5": {
+      "id": "node-5",
+      "label": "formatRows creates display value",
+      "kind": "sink",
+      "file": "examples/simple-go-app/main.go",
+      "line": 25,
+      "column": 1,
+      "summary": "Rows are formatted for output.",
+      "confidence": 1,
+      "resolution": "manual"
+    }
+  }
+}

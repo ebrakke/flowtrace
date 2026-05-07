@@ -1,0 +1,13 @@
+node_modules/
+dist/
+build/
+bin/
+.env
+.env.*
+.flowtrace/*.debug.md
+.flowtrace/*.flow.json
+coverage.out
+.DS_Store
+
+# Local CLI binary from `go build ./packages/cli/cmd/flowtrace`
+/flowtrace
