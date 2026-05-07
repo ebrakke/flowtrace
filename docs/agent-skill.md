@@ -52,10 +52,10 @@ npx skills add https://github.com/<owner>/<repo> --skill <skill-name>
 Examples published there store skills under a top-level `skills/<skill-name>/SKILL.md` path. This repository follows that layout with `skills/flowtrace/SKILL.md` so the expected publish command is:
 
 ```bash
-npx skills add https://github.com/flowtrace/flowtrace --skill flowtrace
+npx skills add https://github.com/ebrakke/flowtrace --skill flowtrace
 ```
 
-Actual skills.sh listing still requires the GitHub repository to be public and indexed by the skills.sh ecosystem.
+The GitHub repository is public at `https://github.com/ebrakke/flowtrace`. If skills.sh indexing is required, submit or wait for indexing according to the current skills.sh process.
 
 ## Validation
 

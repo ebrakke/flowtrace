@@ -2,7 +2,7 @@
 name: flowtrace
 description: Creates validated FlowTrace .flow.json code walkthrough artifacts from natural-language code exploration requests. Use when a user asks to map, trace, explain, or walk through code paths, data flow, request flow, feature implementation, branches, or source-level architecture in a repository.
 license: MIT
-compatibility: Requires the flowtrace CLI on PATH, or a checkout of github.com/flowtrace/flowtrace for go run. Neovim viewing requires the FlowTrace Lua plugin.
+compatibility: Requires the flowtrace CLI on PATH, installable with go install github.com/ebrakke/flowtrace/packages/cli/cmd/flowtrace@latest. Neovim viewing requires the FlowTrace Lua plugin.
 metadata:
   version: "0.1.0"
   project: FlowTrace

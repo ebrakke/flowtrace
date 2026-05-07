@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/flowtrace/flowtrace/packages/cli/internal/core"
+	"github.com/ebrakke/flowtrace/packages/cli/internal/core"
 )
 
 func main() {
