@@ -2,9 +2,10 @@ local parser = require('flowtrace.parser')
 local tree = require('flowtrace.tree')
 local window = require('flowtrace.window')
 local actions = require('flowtrace.actions')
+local agent = require('flowtrace.agent')
 
 local M = {}
-local state = { expanded = {} }
+local state = { expanded = {}, agent_chat = {}, config = { agent = nil } }
 local ns = vim.api.nvim_create_namespace('flowtrace')
 
 local function flow_files()
@@ -65,6 +66,9 @@ end
 
 local function setup_keys()
   map('<CR>', function() actions.jump(state) end)
+  map('a', function() agent.ask_node(state) end)
+  map('A', function() agent.ask_flow(state) end)
+  map('C', function() agent.clear_chat(state) end)
   map('p', function() actions.preview(state) end)
   map('f', function() M.next() end)
   map('F', function() M.prev() end)
@@ -77,6 +81,15 @@ local function setup_keys()
     local item = state.index[vim.api.nvim_win_get_cursor(state.win)[1]]
     if item then state.expanded[item.id] = state.expanded[item.id] == false and true or false; redraw() end
   end)
+end
+
+function M.setup(opts)
+  opts = opts or {}
+  if opts.agent == false then
+    state.config.agent = nil
+  elseif opts.agent then
+    state.config.agent = vim.tbl_deep_extend('force', agent.defaults(), opts.agent)
+  end
 end
 
 function M.open(path)
@@ -126,6 +139,22 @@ end
 
 function M.close()
   if state.win and vim.api.nvim_win_is_valid(state.win) then vim.api.nvim_win_close(state.win, true) end
+end
+
+function M.ask()
+  agent.ask_node(state)
+end
+
+function M.ask_flow()
+  agent.ask_flow(state)
+end
+
+function M.chat()
+  agent.show_chat(state)
+end
+
+function M.chat_clear()
+  agent.clear_chat(state)
 end
 
 return M

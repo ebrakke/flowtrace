@@ -12,6 +12,10 @@ FlowTrace opens a persistent tree next to the source, with colored metadata and 
 
 ![FlowTrace Neovim tree next to source code](docs/assets/flowtrace-neovim.png)
 
+Optional in-Neovim chat lets you ask contextual questions about the current node or whole flow without leaving the walkthrough:
+
+![FlowTrace chat window with inline prompt](docs/assets/flowtrace-chat.png)
+
 The same artifact can be inspected in the terminal before opening Neovim:
 
 ![FlowTrace terminal tree preview](docs/assets/flowtrace-terminal.png)
@@ -71,6 +75,15 @@ return {
     config = function(plugin)
       vim.opt.runtimepath:append(plugin.dir .. "/packages/nvim")
       vim.cmd("runtime plugin/flowtrace.lua")
+
+      -- Optional: enable in-Neovim contextual chat via an external agent.
+      require("flowtrace").setup({
+        agent = {
+          command = "pi",
+          args = { "-p" },
+          prompt_arg = "Answer the user's FlowTrace question using the context from stdin.",
+        },
+      })
     end,
   },
 }
@@ -85,9 +98,27 @@ Commands:
 :FlowTraceLast
 :FlowTraceRefresh
 :FlowTraceClose
+:FlowTraceAsk       " open chat scoped to the current node
+:FlowTraceAskFlow   " open chat scoped to the whole flow
+:FlowTraceChat      " reopen the current chat window
+:FlowTraceChatClear " clear the in-memory chat transcript
 ```
 
-Default keys in the FlowTrace tree: `<CR>` jump, `o` expand/collapse, `p` preview, `?` details, `r` refresh, `q` close.
+Default keys in the FlowTrace tree: `<CR>` jump, `a` chat about the current node, `A` chat about the whole flow, `C` clear chat, `o` expand/collapse, `p` preview, `?` details, `r` refresh, `q` close.
+
+Inside the chat window, type your question on the bottom `> ` input line and press `<CR>` to send. `q` or `<Esc>` closes the floating window while preserving the transcript; `:FlowTraceChat` reopens it.
+
+Claude alternative for chat:
+
+```lua
+require("flowtrace").setup({
+  agent = {
+    command = "claude",
+    args = { "-p" },
+    prompt_arg = "Answer the user's FlowTrace question using the context from stdin.",
+  },
+})
+```
 
 ## Quick start from a clone
 

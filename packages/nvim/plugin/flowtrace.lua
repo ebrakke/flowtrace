@@ -26,3 +26,19 @@ end, {})
 vim.api.nvim_create_user_command('FlowTraceRefresh', function()
   require('flowtrace').refresh()
 end, {})
+
+vim.api.nvim_create_user_command('FlowTraceAsk', function()
+  require('flowtrace').ask()
+end, {})
+
+vim.api.nvim_create_user_command('FlowTraceAskFlow', function()
+  require('flowtrace').ask_flow()
+end, {})
+
+vim.api.nvim_create_user_command('FlowTraceChat', function()
+  require('flowtrace').chat()
+end, {})
+
+vim.api.nvim_create_user_command('FlowTraceChatClear', function()
+  require('flowtrace').chat_clear()
+end, {})

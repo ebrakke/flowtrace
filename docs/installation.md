@@ -61,6 +61,15 @@ return {
     config = function(plugin)
       vim.opt.runtimepath:append(plugin.dir .. "/packages/nvim")
       vim.cmd("runtime plugin/flowtrace.lua")
+
+      -- Optional: enable contextual chat with Pi.
+      require("flowtrace").setup({
+        agent = {
+          command = "pi",
+          args = { "-p" },
+          prompt_arg = "Answer the user's FlowTrace question using the context from stdin.",
+        },
+      })
     end,
   },
 }
@@ -80,6 +89,14 @@ Helpful commands:
 - `:FlowTraceLast` opens the lexicographically last `.flowtrace/*.flow.json` in the current directory.
 - `:FlowTraceRefresh` reloads the current artifact.
 - `:FlowTraceClose` closes the FlowTrace window.
+- `:FlowTraceAsk` opens chat scoped to the current node.
+- `:FlowTraceAskFlow` opens chat scoped to the whole flow.
+- `:FlowTraceChat` reopens the current chat transcript.
+- `:FlowTraceChatClear` clears the in-memory chat transcript.
+
+In the FlowTrace tree, press `a` to chat about the current node or `A` to chat about the whole flow. The floating chat window keeps its transcript after you close it with `q` or `<Esc>`. Type questions on the bottom `> ` input line and press `<CR>` to send.
+
+![FlowTrace chat window with inline prompt](assets/flowtrace-chat.png)
 
 ## 4. Clone for development or examples
 
