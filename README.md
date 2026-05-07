@@ -2,7 +2,7 @@
 
 FlowTrace turns natural-language code exploration requests into validated, jumpable code walkthrough artifacts.
 
-Instead of asking an AI agent for only a prose summary of a codebase, FlowTrace produces a `.flow.json` map of real source files, functions, branches, and data transformations. The CLI provides deterministic repository context, scaffold generation, validation, and printing; your coding agent does the research/reasoning and writes the final artifact. The Neovim plugin opens the artifact as an interactive tree you can jump through.
+Instead of asking an AI agent for only a prose summary of a codebase, FlowTrace produces a `.flow.json` map of real source files, functions, branches, and data transformations. Your coding agent does the research/reasoning and writes the final artifact; the CLI provides deterministic context, validation, and terminal preview commands. The Neovim plugin opens the artifact as an interactive tree you can jump through.
 
 Status: early public MVP. The CLI intentionally does not call LLM APIs. Use it from Claude Code, Codex, Cursor, or another coding agent as a deterministic artifact tool. The Neovim plugin can be installed directly from the public GitHub repository with lazy.nvim/LazyVim.
 
@@ -21,7 +21,7 @@ The artifact used for these screenshots is [`examples/flowtrace-lifecycle.flow.j
 ## Repository layout
 
 ```text
-packages/cli/        Go CLI: build, validate, and print FlowTrace artifacts
+packages/cli/        Go CLI: context, validate, and print FlowTrace artifacts
 packages/nvim/       Neovim/LazyVim plugin runtime files
 skills/flowtrace/    Agent Skill package compatible with the Agent Skills spec
 docs/                schema, install, development, and release notes
@@ -42,22 +42,20 @@ From the public GitHub repository:
 go install github.com/ebrakke/flowtrace/packages/cli/cmd/flowtrace@latest
 ```
 
-Then from any repository you want to explore:
+Then from any repository you want to explore, have your coding agent research the codebase and write `.flowtrace/<name>.flow.json`. Use the CLI to gather optional hints, validate, and preview:
 
 ```bash
-flowtrace build --root . "walk through the main request flow"
-flowtrace validate --root . .flowtrace/walk-through-the-main-request-flow.flow.json
-flowtrace print .flowtrace/walk-through-the-main-request-flow.flow.json
+flowtrace context --root . "walk through the main request flow"   # optional hints for the agent
+flowtrace validate --root . .flowtrace/main-request-flow.flow.json
+flowtrace print .flowtrace/main-request-flow.flow.json
 ```
 
 Agent workflow:
 
-- `flowtrace context "request"` prints candidate files/snippets for your coding agent.
-- The agent uses its own model/context tools to decide the real flow and writes `.flowtrace/<name>.flow.json`.
+- The agent uses its own code-reading tools to decide the real flow and writes `.flowtrace/<name>.flow.json`.
+- `flowtrace context` is optional; it only prints candidate files/snippets as hints.
 - `flowtrace validate` checks paths, line ranges, references, and schema shape.
 - `flowtrace print` previews the tree in a terminal.
-
-`flowtrace build` is a deterministic search-based scaffold generator. It is useful as a starting point, but agent-authored artifacts should usually be better.
 
 ## Install the Neovim / LazyVim plugin
 
@@ -102,21 +100,17 @@ go run ./packages/cli/cmd/flowtrace validate --root . examples/simple.flow.json
 go run ./packages/cli/cmd/flowtrace print examples/simple.flow.json
 ```
 
-Generate a deterministic search-only walkthrough for this repository:
+Preview the included lifecycle artifact:
 
 ```bash
-go run ./packages/cli/cmd/flowtrace build \
-  --root . \
-  --out .flowtrace/flowtrace-build.flow.json \
-  "walk through the flowtrace build command"
-
-go run ./packages/cli/cmd/flowtrace validate --root . .flowtrace/flowtrace-build.flow.json
+go run ./packages/cli/cmd/flowtrace validate --root . examples/flowtrace-lifecycle.flow.json
+go run ./packages/cli/cmd/flowtrace print examples/flowtrace-lifecycle.flow.json
 ```
 
 Open the artifact in Neovim after installing the plugin:
 
 ```vim
-:FlowTraceOpen .flowtrace/flowtrace-build.flow.json
+:FlowTraceOpen examples/flowtrace-lifecycle.flow.json
 ```
 
 ## Install the Agent Skill
