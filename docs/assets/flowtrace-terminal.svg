@@ -2,7 +2,7 @@
   <rect width="100%" height="100%" rx="14" fill="#11111b"/>
   <rect x="0" y="0" width="100%" height="42" rx="14" fill="#181825"/>
   <circle cx="24" cy="21" r="6" fill="#f38ba8"/><circle cx="46" cy="21" r="6" fill="#f9e2af"/><circle cx="68" cy="21" r="6" fill="#a6e3a1"/>
-  <text x="96" y="27" fill="#a6adc8" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="14">flowtrace print examples/flowtrace-happy-path.flow.json</text>
+  <text x="96" y="27" fill="#a6adc8" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="14">flowtrace print .flowtrace/cli-and-nvim-paths.flow.json</text>
   <text x="28" y="75" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="14">Flow: FlowTrace happy path: agent-authored artifact to source navigation</text>
 <text x="28" y="96" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="14">└─ Agent researches the code and writes a FlowTrace artifact [agent] skills/flowtrace/SKILL.md:20</text>
 <text x="28" y="117" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="14">   └─ Artifact follows the FlowTrace schema [artifact] packages/cli/internal/core/schema.go:10</text>

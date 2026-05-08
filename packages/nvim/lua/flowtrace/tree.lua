@@ -33,7 +33,6 @@ local function meta_text(node)
   local parts = {}
   if node.kind then table.insert(parts, 'type: ' .. node.kind) end
   if node.resolution and node.resolution ~= 'manual' then table.insert(parts, 'source: ' .. node.resolution) end
-  if node.confidence and node.confidence > 0 and node.confidence < 0.75 then table.insert(parts, 'low confidence') end
   return table.concat(parts, ' • ')
 end
 

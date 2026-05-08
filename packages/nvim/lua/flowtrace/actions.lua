@@ -125,9 +125,6 @@ function M.details(state)
   if n.resolution and n.resolution ~= 'manual' then
     table.insert(lines, '- source: ' .. tostring(n.resolution))
   end
-  if n.confidence and n.confidence > 0 and n.confidence < 0.75 then
-    table.insert(lines, '- confidence: ' .. tostring(n.confidence))
-  end
   table.insert(lines, '')
   table.insert(lines, n.summary or '')
 

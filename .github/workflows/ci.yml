@@ -14,4 +14,4 @@ jobs:
         with:
           go-version: '1.22'
       - run: go test ./packages/cli/...
-      - run: go run ./packages/cli/cmd/flowtrace validate --root . examples/simple.flow.json
+      - run: go run ./packages/cli/cmd/flowtrace validate --root . .flowtrace/cli-and-nvim-paths.flow.json

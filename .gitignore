@@ -5,7 +5,6 @@ bin/
 .env
 .env.*
 .flowtrace/*.debug.md
-.flowtrace/*.flow.json
 coverage.out
 .DS_Store
 

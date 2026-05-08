@@ -10,7 +10,7 @@ metadata:
 
 # FlowTrace
 
-Use this skill when the user wants a source-level code walkthrough that they can navigate, not just a prose explanation. FlowTrace artifacts are `.flow.json` files containing real repository file paths, line numbers, labels, anchors, branches, confidence, and resolution metadata.
+Use this skill when the user wants a source-level code walkthrough that they can navigate, not just a prose explanation. FlowTrace artifacts are `.flow.json` files containing real repository file paths, line numbers, labels, anchors, branches, and resolution metadata.
 
 Do not treat FlowTrace as runtime tracing, instrumentation, log analysis, distributed tracing, profiling, or observability telemetry. The output is a static code walkthrough artifact for developer exploration.
 
@@ -60,7 +60,7 @@ If Go is unavailable or installation fails, continue researching and writing the
 1. Confirm the repository root and the flow to trace. Ask a brief clarification only if the request is ambiguous.
 2. Ensure the `flowtrace` CLI is available using the check above.
 3. Research the codebase yourself. Use your own tools to find entrypoints, handlers, services, data transformations, branches, downstream calls, response formatting, and important alternatives. Follow real code references; do not rely on FlowTrace to infer them.
-4. Decide the walkthrough structure: root node, important child order, branch targets, labels, summaries, confidence, and resolution values.
+4. Decide the walkthrough structure: root node, important child order, branch targets, labels, summaries, and resolution values.
 5. Write `.flowtrace/<slug>.flow.json` yourself. Create the directory if needed. Prefer stable jump metadata on every node:
 
    ```json
@@ -74,7 +74,6 @@ If Go is unavailable or installation fails, continue researching and writing the
      "symbol": "runQuery",
      "anchor": "function runQuery(",
      "summary": "Validates, executes, and formats the query.",
-     "confidence": 0.9,
      "resolution": "manual",
      "children": ["node-2"]
    }
@@ -116,6 +115,6 @@ Return a concise summary with:
 - validation command and result
 - terminal preview command used
 - Neovim open command
-- caveats for nodes marked `search`, `llm_inferred`, or low confidence
+- caveats for nodes marked `search` or `llm_inferred`
 
 If validation fails, report the validation error and do not present the artifact as ready to use.

@@ -194,7 +194,7 @@ func heuristicFlow(o BuildOptions, cands []candidate) *Flow {
 		if i == 0 {
 			root = id
 		}
-		n := FlowNode{ID: id, Label: labelFromMatch(c.File, text), Kind: "step", File: c.File, Line: line, Column: 1, Summary: text, Anchor: text, Confidence: 0.55, Resolution: "search"}
+		n := FlowNode{ID: id, Label: labelFromMatch(c.File, text), Kind: "step", File: c.File, Line: line, Column: 1, Summary: text, Anchor: text, Resolution: "search"}
 		nodes[id] = n
 		if prev != "" {
 			p := nodes[prev]
@@ -205,7 +205,7 @@ func heuristicFlow(o BuildOptions, cands []candidate) *Flow {
 	}
 	if root == "" {
 		root = "node-1"
-		nodes[root] = FlowNode{ID: root, Label: "Repository entrypoint not found", Kind: "unknown", File: "README.md", Line: 1, Column: 1, Summary: "No matching source files were found; this placeholder points at README.", Confidence: 0.1, Resolution: "search"}
+		nodes[root] = FlowNode{ID: root, Label: "Repository entrypoint not found", Kind: "unknown", File: "README.md", Line: 1, Column: 1, Summary: "No matching source files were found; this placeholder points at README.", Resolution: "search"}
 	}
 	return &Flow{SchemaVersion: SchemaVersion, ID: slug(o.Request) + "-flow", Title: titleFromRequest(o.Request), CreatedAt: time.Now().UTC().Format(time.RFC3339), Root: root, Nodes: nodes}
 }
@@ -222,9 +222,6 @@ func normalizeAndResolve(f *Flow, root string, cands []candidate) error {
 		}
 		if n.Resolution == "" {
 			n.Resolution = "llm_inferred"
-		}
-		if n.Confidence == 0 {
-			n.Confidence = 0.5
 		}
 		if _, err := os.Stat(filepath.Join(root, n.File)); err != nil { // map basename to candidate
 			for _, c := range cands {

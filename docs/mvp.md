@@ -66,7 +66,7 @@ FlowTrace intentionally leaves LLM reasoning to the calling coding agent (Claude
    - renders an interactive tree view
    - allows jump-to-code
    - supports expand/collapse
-   - shows confidence and resolution metadata
+   - shows resolution metadata
 
 ---
 
@@ -193,7 +193,6 @@ Example:
       "line": 24,
       "column": 1,
       "summary": "HTTP entrypoint for running a saved query.",
-      "confidence": 0.91,
       "resolution": "llm_validated",
       "children": ["node-2"]
     },
@@ -205,7 +204,6 @@ Example:
       "line": 88,
       "column": 3,
       "summary": "Coordinates query validation, SQL generation, execution, and formatting.",
-      "confidence": 0.86,
       "resolution": "llm_inferred",
       "children": ["node-3", "node-4"],
       "branches": [
@@ -234,7 +232,6 @@ type FlowNode = {
   line: number
   column?: number
   summary?: string
-  confidence?: number
   resolution: "lsp" | "ast" | "search" | "llm_inferred" | "llm_validated" | "manual"
   children?: string[]
   branches?: FlowBranch[]
@@ -454,8 +451,8 @@ flowtrace/
         tree.lua
         parser.lua
         actions.lua
-  examples/
-    simple-ts-app/
+  .flowtrace/
+    cli-and-nvim-paths.flow.json
 ```
 
 ---
@@ -469,14 +466,14 @@ No LLM yet.
 Tasks:
 
 - define schema
-- create sample `.flow.json`
+- create checked-in repository `.flow.json` walkthrough
 - build Neovim tree viewer
 - jump to files/lines
 
 Success criteria:
 
 ```vim
-:FlowTraceOpen examples/simple.flow.json
+:FlowTraceOpen .flowtrace/cli-and-nvim-paths.flow.json
 ```
 
 opens a navigable tree and jumps correctly.
@@ -519,7 +516,7 @@ Tasks:
 
 - validate file paths
 - resolve symbols to exact lines
-- mark confidence and resolution source
+- mark resolution source
 - include alternatives for ambiguous calls
 
 ### Milestone 5: Branch support in UI
@@ -538,7 +535,7 @@ Tasks:
 2. Create schema and sample flow file.
 3. Add `flowtrace validate`.
 4. Add `flowtrace context` and deterministic `flowtrace build` scaffolding.
-5. Iterate on real repository examples.
+5. Iterate on checked-in repository walkthroughs.
 
 This avoids getting stuck on analysis before proving the editor UX.
 

@@ -27,7 +27,6 @@ type FlowNode struct {
 	Summary      string            `json:"summary,omitempty"`
 	Symbol       string            `json:"symbol,omitempty"`
 	Anchor       string            `json:"anchor,omitempty"`
-	Confidence   float64           `json:"confidence,omitempty"`
 	Resolution   string            `json:"resolution"`
 	Children     []string          `json:"children,omitempty"`
 	Branches     []FlowBranch      `json:"branches,omitempty"`

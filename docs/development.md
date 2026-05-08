@@ -9,15 +9,16 @@
 
 ```bash
 go test ./packages/cli/...
-go run ./packages/cli/cmd/flowtrace validate --root . examples/simple.flow.json
-go run ./packages/cli/cmd/flowtrace print examples/simple.flow.json
+go run ./packages/cli/cmd/flowtrace validate --root . .flowtrace/cli-and-nvim-paths.flow.json
+go run ./packages/cli/cmd/flowtrace print .flowtrace/cli-and-nvim-paths.flow.json
 go run ./packages/cli/cmd/flowtrace context --root . "walk through flowtrace validation"
 go run ./packages/cli/cmd/flowtrace build --root . "walk through flowtrace validation"
 ```
 
 ## Repository conventions
 
-- Generated local artifacts belong in `.flowtrace/*.flow.json` and are gitignored.
+- Curated repository walkthroughs live in `.flowtrace/*.flow.json`; avoid committing one-off scratch traces unless they are useful demos.
+- Use the project skill at `.pi/skills/update-flowtraces/SKILL.md` when code/docs changes may make checked-in walkthroughs stale.
 - Keep the CLI dependency-light; it currently uses the Go standard library.
 - The CLI should stay deterministic and should not call LLM providers; coding agents do the research/reasoning.
 - The Agent Skill package is canonical at `skills/flowtrace`.
@@ -28,7 +29,7 @@ go run ./packages/cli/cmd/flowtrace build --root . "walk through flowtrace valid
 Install `packages/nvim` as a local runtime plugin, open Neovim from the repository root, then run:
 
 ```vim
-:FlowTraceOpen examples/simple.flow.json
+:FlowTraceOpen .flowtrace/cli-and-nvim-paths.flow.json
 ```
 
-Confirm the tree renders and `<CR>` jumps to `examples/simple-go-app/main.go`.
+Confirm the tree renders and `<CR>` jumps to files in this repository, such as `packages/cli/cmd/flowtrace/main.go`.

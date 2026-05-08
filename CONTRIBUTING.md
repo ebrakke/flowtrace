@@ -6,7 +6,7 @@ Before opening a PR, run:
 
 ```bash
 go test ./packages/cli/...
-go run ./packages/cli/cmd/flowtrace validate --root . examples/simple.flow.json
+go run ./packages/cli/cmd/flowtrace validate --root . .flowtrace/cli-and-nvim-paths.flow.json
 ```
 
-Please keep generated `.flowtrace/*.flow.json` files out of commits unless they are intentional examples. See `docs/development.md` for local setup notes.
+Please commit `.flowtrace/*.flow.json` files only when they are useful repository walkthroughs, not one-off scratch traces. See `docs/development.md` for local setup notes.

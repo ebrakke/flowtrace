@@ -37,7 +37,6 @@ Required fields:
   "summary": "HTTP entrypoint for running a saved query.",
   "symbol": "runQuery",
   "anchor": "function runQuery(query)",
-  "confidence": 0.91,
   "resolution": "llm_validated",
   "children": ["node-2"],
   "branches": [{ "label": "cache hit", "target": "node-cache" }]

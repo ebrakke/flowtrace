@@ -7,7 +7,7 @@
 
    ```bash
    go test ./packages/cli/...
-   go run ./packages/cli/cmd/flowtrace validate --root . examples/simple.flow.json
+   go run ./packages/cli/cmd/flowtrace validate --root . .flowtrace/cli-and-nvim-paths.flow.json
    ```
 
 3. Confirm the GitHub repository is public at `github.com/ebrakke/flowtrace`.

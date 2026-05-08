@@ -20,7 +20,7 @@ The same artifact can be inspected in the terminal before opening Neovim:
 
 ![FlowTrace terminal tree preview](docs/assets/flowtrace-terminal.png)
 
-The artifact used for these screenshots is [`examples/flowtrace-happy-path.flow.json`](examples/flowtrace-happy-path.flow.json).
+The artifacts used for screenshots and demos are checked in under [`.flowtrace/`](.flowtrace/) and point at this repository's own code.
 
 ## Repository layout
 
@@ -29,7 +29,7 @@ packages/cli/        Go CLI: context, validate, and print FlowTrace artifacts
 packages/nvim/       Neovim/LazyVim plugin runtime files
 skills/flowtrace/    Agent Skill package compatible with the Agent Skills spec
 docs/                schema, install, development, and release notes
-examples/            sample app and sample .flow.json artifact
+.flowtrace/          checked-in FlowTrace walkthroughs for this repository
 ```
 
 ## Requirements
@@ -156,21 +156,21 @@ git clone https://github.com/ebrakke/flowtrace.git
 cd flowtrace
 
 go test ./packages/cli/...
-go run ./packages/cli/cmd/flowtrace validate --root . examples/simple.flow.json
-go run ./packages/cli/cmd/flowtrace print examples/simple.flow.json
+go run ./packages/cli/cmd/flowtrace validate --root . .flowtrace/cli-and-nvim-paths.flow.json
+go run ./packages/cli/cmd/flowtrace print .flowtrace/cli-and-nvim-paths.flow.json
 ```
 
-Preview the included lifecycle artifact:
+Preview another included repository walkthrough:
 
 ```bash
-go run ./packages/cli/cmd/flowtrace validate --root . examples/flowtrace-happy-path.flow.json
-go run ./packages/cli/cmd/flowtrace print examples/flowtrace-happy-path.flow.json
+go run ./packages/cli/cmd/flowtrace validate --root . .flowtrace/lua-plugin-tree-build.flow.json
+go run ./packages/cli/cmd/flowtrace print .flowtrace/lua-plugin-tree-build.flow.json
 ```
 
 Open the artifact in Neovim after installing the plugin:
 
 ```vim
-:FlowTraceOpen examples/flowtrace-happy-path.flow.json
+:FlowTraceOpen .flowtrace/cli-and-nvim-paths.flow.json
 ```
 
 ## Install the Agent Skill

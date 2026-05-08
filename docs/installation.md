@@ -45,7 +45,7 @@ flowtrace validate --root . .flowtrace/flowtrace-build.flow.json
 flowtrace print .flowtrace/flowtrace-build.flow.json
 ```
 
-Generated artifacts default to `.flowtrace/<slug>.flow.json`. They are ignored by git so local traces do not pollute commits.
+Generated artifacts default to `.flowtrace/<slug>.flow.json`. This repository checks in a few curated `.flowtrace/*.flow.json` walkthroughs as demos; local scratch traces can be deleted or kept out of commits as needed.
 
 ## 3. Install the Neovim / LazyVim plugin
 
@@ -109,15 +109,15 @@ In the FlowTrace tree, press `a` to chat about the current node or `A` to chat a
 
 ![FlowTrace chat window with inline prompt](assets/flowtrace-chat.png)
 
-## 4. Clone for development or examples
+## 4. Clone for development and repository walkthroughs
 
 ```bash
 git clone https://github.com/ebrakke/flowtrace.git
 cd flowtrace
 
 go test ./packages/cli/...
-go run ./packages/cli/cmd/flowtrace validate --root . examples/simple.flow.json
-go run ./packages/cli/cmd/flowtrace print examples/simple.flow.json
+go run ./packages/cli/cmd/flowtrace validate --root . .flowtrace/cli-and-nvim-paths.flow.json
+go run ./packages/cli/cmd/flowtrace print .flowtrace/cli-and-nvim-paths.flow.json
 ```
 
 If you prefer to use a local checkout of the Neovim plugin while developing it:
