@@ -79,11 +79,32 @@ return {
       -- Optional: enable in-Neovim contextual chat via an external agent.
       require("flowtrace").setup({
         agent = {
-          command = "pi",
-          args = { "-p" },
-          prompt_arg = "Answer the user's FlowTrace question using the context from stdin.",
+          -- Default provider for new chat requests. Switch any time with
+          -- :FlowTraceAgentProvider pi or :FlowTraceAgentProvider claude.
+          provider = "pi",
+          providers = {
+            pi = {
+              command = "pi",
+              args = { "-p" },
+              prompt_arg = "Answer the user's FlowTrace question using the context from stdin.",
+            },
+            claude = {
+              command = "claude",
+              args = { "-p" },
+              prompt_arg = "Answer the user's FlowTrace question using the context from stdin.",
+            },
+          },
         },
       })
+
+      -- Optional convenience keymaps. Uppercase <leader>F avoids LazyVim's
+      -- default lowercase <leader>f file/find namespace.
+      vim.keymap.set("n", "<leader>Ft", "<cmd>FlowTraceLast<CR>", { desc = "FlowTrace: open latest trace" })
+      vim.keymap.set("n", "<leader>Fc", "<cmd>FlowTraceClose<CR>", { desc = "FlowTrace: close" })
+      vim.keymap.set("n", "<leader>Fr", "<cmd>FlowTraceRefresh<CR>", { desc = "FlowTrace: refresh" })
+      vim.keymap.set("n", "<leader>Fa", "<cmd>FlowTraceAsk<CR>", { desc = "FlowTrace: ask current node" })
+      vim.keymap.set("n", "<leader>FA", "<cmd>FlowTraceAskFlow<CR>", { desc = "FlowTrace: ask whole flow" })
+      vim.keymap.set("n", "<leader>Fp", "<cmd>FlowTraceAgentProvider ", { desc = "FlowTrace: switch provider" })
     end,
   },
 }
@@ -102,22 +123,30 @@ Commands:
 :FlowTraceAskFlow   " open chat scoped to the whole flow
 :FlowTraceChat      " reopen the current chat window
 :FlowTraceChatClear " clear the in-memory chat transcript
+:FlowTraceAgentProvider [name] " show or switch chat provider
 ```
 
 Default keys in the FlowTrace tree: `<CR>` jump, `a` chat about the current node, `A` chat about the whole flow, `C` clear chat, `o` expand/collapse, `p` preview, `?` details, `r` refresh, `q` close.
 
 Inside the chat window, type your question on the bottom `> ` input line and press `<CR>` to send. `q` or `<Esc>` closes the floating window while preserving the transcript; `:FlowTraceChat` reopens it.
 
-Claude alternative for chat:
+Agent chat supports multiple named external providers. Configure them under `agent.providers`, choose the default with `agent.provider`, and switch mid-session without clearing the transcript:
 
-```lua
-require("flowtrace").setup({
-  agent = {
-    command = "claude",
-    args = { "-p" },
-    prompt_arg = "Answer the user's FlowTrace question using the context from stdin.",
-  },
-})
+```vim
+:FlowTraceAgentProvider        " show current provider and available providers
+:FlowTraceAgentProvider pi     " use Pi for subsequent questions
+:FlowTraceAgentProvider claude " use Claude for subsequent questions
+```
+
+Suggested convenience keymaps from the install snippet:
+
+```text
+<leader>Ft  open latest trace
+<leader>Fc  close FlowTrace
+<leader>Fr  refresh current trace
+<leader>Fa  ask about current node
+<leader>FA  ask about whole flow
+<leader>Fp  switch chat provider
 ```
 
 ## Quick start from a clone

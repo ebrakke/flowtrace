@@ -42,3 +42,16 @@ end, {})
 vim.api.nvim_create_user_command('FlowTraceChatClear', function()
   require('flowtrace').chat_clear()
 end, {})
+
+vim.api.nvim_create_user_command('FlowTraceAgentProvider', function(opts)
+  require('flowtrace').agent_provider(opts.args)
+end, {
+  nargs = '?',
+  complete = function(arg_lead)
+    local out = {}
+    for _, name in ipairs(require('flowtrace').agent_provider_names()) do
+      if name:sub(1, #arg_lead) == arg_lead then table.insert(out, name) end
+    end
+    return out
+  end,
+})

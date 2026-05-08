@@ -207,7 +207,8 @@ end
 
 local function chat_lines(state)
   local lines = { '# FlowTrace Chat', '' }
-  table.insert(lines, '_Scope: ' .. chat_scope(state) .. ' • type on the `> ` line and press <CR> to send • q closes_')
+  local provider = (state.config and state.config.agent_provider) or (state.config and state.config.agent and state.config.agent.command) or 'not configured'
+  table.insert(lines, '_Provider: ' .. provider .. ' • Scope: ' .. chat_scope(state) .. ' • type on the `> ` line and press <CR> to send • q closes_')
   table.insert(lines, '')
 
   if not state.agent_chat or #state.agent_chat == 0 then

@@ -5,7 +5,7 @@ local actions = require('flowtrace.actions')
 local agent = require('flowtrace.agent')
 
 local M = {}
-local state = { expanded = {}, agent_chat = {}, config = { agent = nil } }
+local state = { expanded = {}, agent_chat = {}, config = { agent = nil, agent_providers = {}, agent_provider = nil } }
 local ns = vim.api.nvim_create_namespace('flowtrace')
 
 local function flow_files()
@@ -83,13 +83,66 @@ local function setup_keys()
   end)
 end
 
+local function sorted_provider_names()
+  local names = {}
+  for name, _ in pairs(state.config.agent_providers or {}) do table.insert(names, name) end
+  table.sort(names)
+  return names
+end
+
+local function set_agent_provider(name)
+  local provider = state.config.agent_providers and state.config.agent_providers[name]
+  if not provider then return false end
+  state.config.agent_provider = name
+  state.config.agent = provider
+  return true
+end
+
 function M.setup(opts)
   opts = opts or {}
   if opts.agent == false then
     state.config.agent = nil
-  elseif opts.agent then
-    state.config.agent = vim.tbl_deep_extend('force', agent.defaults(), opts.agent)
+    state.config.agent_providers = {}
+    state.config.agent_provider = nil
+    return
   end
+  if not opts.agent then return end
+
+  if opts.agent.providers then
+    state.config.agent_providers = {}
+    for name, provider in pairs(opts.agent.providers) do
+      state.config.agent_providers[name] = vim.tbl_deep_extend('force', agent.defaults(), provider)
+    end
+    local selected = opts.agent.provider or state.config.agent_provider or sorted_provider_names()[1]
+    if selected and not set_agent_provider(selected) then
+      vim.notify('FlowTrace: unknown agent provider: ' .. tostring(selected), vim.log.levels.WARN)
+      selected = sorted_provider_names()[1]
+      if selected then set_agent_provider(selected) end
+    end
+  else
+    state.config.agent = vim.tbl_deep_extend('force', agent.defaults(), opts.agent)
+    state.config.agent_providers = {}
+    state.config.agent_provider = opts.agent.provider
+  end
+end
+
+function M.agent_provider(name)
+  if not name or name == '' then
+    local current = state.config.agent_provider or (state.config.agent and state.config.agent.command) or 'none'
+    local names = sorted_provider_names()
+    local suffix = #names > 0 and (' Available: ' .. table.concat(names, ', ')) or ''
+    vim.notify('FlowTrace agent provider: ' .. current .. suffix, vim.log.levels.INFO)
+    return current
+  end
+  if not set_agent_provider(name) then
+    error('FlowTrace: unknown agent provider "' .. name .. '"')
+  end
+  vim.notify('FlowTrace agent provider: ' .. name, vim.log.levels.INFO)
+  return name
+end
+
+function M.agent_provider_names()
+  return sorted_provider_names()
 end
 
 function M.open(path)

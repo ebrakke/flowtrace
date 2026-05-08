@@ -65,9 +65,19 @@ return {
       -- Optional: enable contextual chat with Pi.
       require("flowtrace").setup({
         agent = {
-          command = "pi",
-          args = { "-p" },
-          prompt_arg = "Answer the user's FlowTrace question using the context from stdin.",
+          provider = "pi",
+          providers = {
+            pi = {
+              command = "pi",
+              args = { "-p" },
+              prompt_arg = "Answer the user's FlowTrace question using the context from stdin.",
+            },
+            claude = {
+              command = "claude",
+              args = { "-p" },
+              prompt_arg = "Answer the user's FlowTrace question using the context from stdin.",
+            },
+          },
         },
       })
     end,
@@ -93,8 +103,9 @@ Helpful commands:
 - `:FlowTraceAskFlow` opens chat scoped to the whole flow.
 - `:FlowTraceChat` reopens the current chat transcript.
 - `:FlowTraceChatClear` clears the in-memory chat transcript.
+- `:FlowTraceAgentProvider [name]` shows or switches the chat provider, with completion for configured providers.
 
-In the FlowTrace tree, press `a` to chat about the current node or `A` to chat about the whole flow. The floating chat window keeps its transcript after you close it with `q` or `<Esc>`. Type questions on the bottom `> ` input line and press `<CR>` to send.
+In the FlowTrace tree, press `a` to chat about the current node or `A` to chat about the whole flow. The floating chat window keeps its transcript after you close it with `q` or `<Esc>`. Type questions on the bottom `> ` input line and press `<CR>` to send. Switch providers mid-session with commands like `:FlowTraceAgentProvider pi` or `:FlowTraceAgentProvider claude`.
 
 ![FlowTrace chat window with inline prompt](assets/flowtrace-chat.png)
 
