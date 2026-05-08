@@ -1,6 +1,6 @@
 ---
 name: update-flowtraces
-description: Maintains this repository's checked-in .flowtrace/*.flow.json walkthroughs. Use whenever FlowTrace code, docs, schema, CLI behavior, Neovim plugin behavior, agent skill instructions, or screenshots change and the demo traces may be stale. Also use when the user asks to update example flowtraces, refresh repository walkthroughs, validate traces, or keep demos in sync with code. Prefer a cost-aware workflow: high-capability exploration first, cheaper/mechanical JSON editing second.
+description: "Maintains this repository's checked-in .flowtrace/*.flow.json walkthroughs. Use whenever FlowTrace code, docs, schema, CLI behavior, Neovim plugin behavior, agent skill instructions, or screenshots change and the demo traces may be stale. Also use when the user asks to update example flowtraces, refresh repository walkthroughs, validate traces, or keep demos in sync with code. Prefer a cost-aware workflow: high-capability exploration first, cheaper/mechanical JSON editing second."
 license: MIT
 compatibility: Requires the flowtrace CLI via go run ./packages/cli/cmd/flowtrace or an installed flowtrace binary. Optional: pi subagents with model overrides for cost-aware delegation.
 metadata:

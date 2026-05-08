@@ -25,6 +25,10 @@ license: MIT
 
 The skill instructions are FlowTrace-specific: they tell an agent to create validated `.flow.json` code walkthrough artifacts and explain how to open those artifacts in Neovim. They are not instructions for runtime tracing, instrumentation, or observability telemetry.
 
+The same skill also includes a changeset / PR mode. When the user asks for a flow of a pull request, branch, patch, diff, or changeset, the agent should compare against the likely mainline branch, inspect the changed hunks, then build a reviewer-oriented data-flow walkthrough that emphasizes changed behavior instead of presenting a file-by-file diff tour.
+
+Agent Skills do not currently define a portable slash-command format, so FlowTrace keeps PR / changeset behavior inside the portable `skills/flowtrace/SKILL.md` instructions instead of shipping client-specific command wrappers. Users can invoke the mode naturally by asking for a FlowTrace of a PR, branch, diff, or changeset.
+
 ## Install locations
 
 The Agent Skills implementation guide documents `.agents/skills/` as a cross-client convention for local skill discovery. Manual install:
