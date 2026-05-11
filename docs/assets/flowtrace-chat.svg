@@ -1,68 +1,47 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1280" height="760" viewBox="0 0 1280 760">
-  <defs>
-    <clipPath id="leftClip"><rect x="0" y="34" width="602" height="726"/></clipPath>
-    <clipPath id="rightClip"><rect x="628" y="34" width="628" height="726"/></clipPath>
-    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
-      <feDropShadow dx="0" dy="14" stdDeviation="14" flood-color="#000000" flood-opacity="0.45"/>
-    </filter>
-  </defs>
-
-  <rect width="100%" height="100%" fill="#1e1e2e"/>
-  <rect x="0" y="0" width="610" height="100%" fill="#181825"/>
-  <rect x="610" y="0" width="2" height="100%" fill="#313244"/>
-  <rect x="0" y="0" width="100%" height="34" fill="#11111b"/>
-  <text x="18" y="23" fill="#a6adc8" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13">FlowTrace tree</text>
-  <text x="636" y="23" fill="#a6adc8" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13">packages/cli/cmd/flowtrace/main.go</text>
-
-  <g clip-path="url(#leftClip)" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13">
-    <text x="24" y="62" fill="#cba6f7">Flow: Simple query flow</text>
-    <text x="24" y="84" fill="#6c7086">Press &lt;CR&gt; jump • a ask • A ask flow • C clear chat • f/F flows • o toggle • q close</text>
-    <text x="24" y="128" fill="#f5c2e7">└─ ▾</text><text x="68" y="128" fill="#a6e3a1">packages/cli/cmd/flowtrace/main.go:6</text>
-    <text x="68" y="150" fill="#cdd6f4">main builds a query</text>
-    <text x="68" y="172" fill="#89b4fa">type: entrypoint</text>
-    <text x="46" y="216" fill="#f5c2e7">└─ ▾</text><text x="90" y="216" fill="#a6e3a1">packages/cli/cmd/flowtrace/main.go:10</text>
-    <text x="90" y="238" fill="#cdd6f4">runQuery coordinates cache, execution, and formatting</text>
-    <text x="90" y="260" fill="#89b4fa">type: service</text>
-    <text x="68" y="304" fill="#f5c2e7">├─</text><text x="96" y="304" fill="#a6e3a1">packages/cli/cmd/flowtrace/main.go:21</text>
-    <text x="90" y="326" fill="#f5c2e7">│</text><text x="118" y="326" fill="#cdd6f4">executeSQL returns rows</text>
-    <text x="68" y="370" fill="#f5c2e7">├─</text><text x="96" y="370" fill="#a6e3a1">packages/cli/cmd/flowtrace/main.go:25</text>
-    <text x="90" y="392" fill="#f5c2e7">│</text><text x="118" y="392" fill="#cdd6f4">formatRows creates display value</text>
-    <text x="68" y="436" fill="#f5c2e7">└─</text><text x="96" y="436" fill="#fab387">↳ cache hit:</text><text x="202" y="436" fill="#a6e3a1">packages/cli/cmd/flowtrace/main.go:11</text>
-    <text x="118" y="458" fill="#cdd6f4">return cached result</text>
-  </g>
-
-  <g clip-path="url(#rightClip)">
-    <rect x="628" y="88" width="628" height="32" fill="#313244" opacity="0.55"/>
-    <text x="638" y="76" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="14">  8  }</text>
-    <text x="638" y="104" fill="#f38ba8" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="14"> 10  func runQuery(query string) string {</text>
-    <text x="638" y="132" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="14"> 11    if cached := lookupCache(query); cached != &quot;&quot; {</text>
-    <text x="638" y="160" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="14"> 12      return cached</text>
-    <text x="638" y="188" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="14"> 13    }</text>
-    <text x="638" y="216" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="14"> 14    rows := executeSQL(query)</text>
-    <text x="638" y="244" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="14"> 15    return formatRows(rows)</text>
-    <text x="638" y="272" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="14"> 16  }</text>
-  </g>
-
-  <g filter="url(#shadow)">
-    <rect x="216" y="106" width="896" height="520" rx="12" fill="#181825" stroke="#89b4fa" stroke-width="2"/>
-    <rect x="216" y="106" width="896" height="38" rx="12" fill="#11111b"/>
-    <text x="584" y="131" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="14">FlowTrace Chat</text>
-
-    <text x="246" y="174" fill="#cba6f7" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="21" font-weight="700"># FlowTrace Chat</text>
-    <text x="246" y="204" fill="#6c7086" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13">Scope: current-node • type on the `&gt; ` line and press &lt;CR&gt; to send • q closes</text>
-
-    <text x="246" y="254" fill="#89b4fa" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="18" font-weight="700">## You</text>
-    <text x="246" y="286" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="15">Why is this branch important?</text>
-
-    <text x="246" y="344" fill="#a6e3a1" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="18" font-weight="700">## FlowTrace Agent</text>
-    <text x="246" y="378" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="15">The cache-hit branch is the early exit in runQuery. It prevents the SQL execution</text>
-    <text x="246" y="402" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="15">and formatting steps from running when lookupCache already has an answer.</text>
-    <text x="246" y="436" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="15">Next, inspect executeSQL to understand the miss path and compare what work the</text>
-    <text x="246" y="460" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="15">cache avoids.</text>
-
-    <line x1="246" y1="500" x2="1082" y2="500" stroke="#313244" stroke-width="1"/>
-    <text x="246" y="538" fill="#89b4fa" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="18" font-weight="700">## Ask</text>
-    <rect x="246" y="554" width="836" height="42" rx="6" fill="#1e1e2e" stroke="#45475a"/>
-    <text x="266" y="581" fill="#f5c2e7" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="16">&gt; How does this step relate to formatting?</text>
-  </g>
+ <defs><clipPath id="leftClip"><rect x="0" y="34" width="602" height="726"/></clipPath><clipPath id="rightClip"><rect x="628" y="34" width="628" height="726"/></clipPath><filter id="shadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="14" stdDeviation="14" flood-color="#000" flood-opacity="0.45"/></filter></defs>
+ <rect x="0" y="0" width="1280" height="760" rx="0" fill="#1e1e2e" opacity="1"/> <rect x="0" y="0" width="610" height="760" rx="0" fill="#181825" opacity="1"/> <rect x="610" y="0" width="2" height="760" rx="0" fill="#313244" opacity="1"/> <rect x="0" y="0" width="1280" height="34" rx="0" fill="#11111b" opacity="1"/>
+ <text x="18" y="23" fill="#9399b2" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13">FlowTrace tree</text> <text x="636" y="23" fill="#9399b2" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13">packages/nvim/lua/flowtrace/tree.lua</text>
+<g clip-path="url(#leftClip)" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13">
+<text x="24" y="62" fill="#cba6f7" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13">Flow: Compact rows + selected-node detail panel</text>
+<text x="24" y="84" fill="#6c7086" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13">Compact view: one row per node • selected details below • D panel • o toggle</text>
+<text x="24" y="128" fill="#a6e3a1" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13">└─ ▾ init.lua:195  M.open initializes compact tree state [entrypoint]</text>
+<text x="24" y="150" fill="#a6e3a1" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13">   ├─ ▾ init.lua:8  compact view defaults [configuration]</text>
+<text x="24" y="172" fill="#fab387" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13">   │  └─ ▾ ↳ user overrides defaults: init.lua:144  setup merges view config</text>
+<text x="24" y="194" fill="#a6e3a1" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13">   │     └─ README.md:129  documents compact view and D toggle</text>
+<text x="24" y="216" fill="#a6e3a1" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13">   ├─ ▾ init.lua:73  redraw passes view options into tree.render [render]</text>
+<text x="24" y="238" fill="#a6e3a1" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13">   │  ├─ init.lua:64  selected_id resolves node for details [state]</text>
+<text x="24" y="260" fill="#a6e3a1" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13">   │  └─ ▾ tree.lua:188  render chooses compact or verbose [render]</text>
+<text x="24" y="282" fill="#a6e3a1" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13">   │     ├─ tree.lua:158  add_detail_panel appends selected details [renderer]</text>
+<text x="24" y="304" fill="#fab387" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13">   │     ├─ ▾ ↳ compact mode: tree.lua:74  one row per node [renderer]</text>
+<text x="24" y="326" fill="#a6e3a1" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13">   │     │  ├─ tree.lua:63  children_for normalizes branches [helper]</text>
+<text x="24" y="348" fill="#a6e3a1" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13">   │     │  └─ tree.lua:43  child_summary reports subtree size [helper]</text>
+<rect x="18" y="354" width="584" height="24" rx="0" fill="#313244" opacity="0.9"/>
+<text x="24" y="370" fill="#fab387" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13">   │     └─ ↳ verbose mode: tree.lua:118  old expanded layout [renderer]</text>
+<text x="24" y="392" fill="#a6e3a1" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13">   └─ ▾ init.lua:212  CursorMoved keeps detail panel synced [interaction]</text>
+<text x="24" y="414" fill="#fab387" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13">      ├─ ↳ press D: init.lua:123  toggle detail panel</text>
+<text x="24" y="436" fill="#fab387" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13">      └─ ↳ press o: init.lua:119  expand/collapse with cursor preserved</text>
+</g><g clip-path="url(#rightClip)" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13">
+<rect x="628" y="326" width="628" height="32" rx="0" fill="#313244" opacity="0.55"/>
+<text x="638" y="66" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13">155  end</text>
+<text x="638" y="94" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13">156</text>
+<text x="638" y="122" fill="#f38ba8" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13">157  local function add_detail_panel(lines, index, highlights, id, node)</text>
+<text x="638" y="150" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13">158    if not node then return end</text>
+<text x="638" y="178" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13">159    add_line(lines, index, highlights, &quot;&quot;, nil, nil, nil)</text>
+<text x="638" y="206" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13">160    add_line(lines, index, highlights, &quot;──── selected node ────&quot;, nil, nil, &quot;FlowTraceDetailBorder&quot;)</text>
+<text x="638" y="234" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13">161    add_line(lines, index, highlights, &quot;Selected: &quot; .. (node.label or id), nil, nil, &quot;FlowTraceDetailTitle&quot;)</text>
+<text x="638" y="262" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13">162</text>
+<text x="638" y="290" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13">163    local context = { location_text(node) }</text>
+<text x="638" y="318" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13">164    local counts = child_summary(node)</text>
+<text x="638" y="346" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13">165    if counts then table.insert(context, counts) end</text>
+<text x="638" y="374" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13">166    add_line(lines, index, highlights, table.concat(context, &quot;  •  &quot;), nil, nil, &quot;FlowTraceSummary&quot;)</text>
+<text x="638" y="402" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13">167</text>
+<text x="638" y="430" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13">168    local summary = clean(node.summary)</text>
+<text x="638" y="458" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13">169    if summary ~= &quot;&quot; then</text>
+<text x="638" y="486" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13">170      add_line(lines, index, highlights, &quot;&quot;, nil, nil, nil)</text>
+<text x="638" y="514" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13">171      add_line(lines, index, highlights, &quot;Summary&quot;, nil, nil, &quot;FlowTraceDetailSummaryTitle&quot;)</text>
+<text x="638" y="542" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13">172      add_line(lines, index, highlights, summary, nil, nil, &quot;FlowTraceDetailSummary&quot;)</text>
+<text x="638" y="570" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13">173    end</text>
+<text x="638" y="598" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13">174  end</text>
+</g><g filter="url(#shadow)"><rect x="216" y="106" width="896" height="520" rx="12" fill="#181825" opacity="1"/><rect x="216" y="106" width="896" height="520" rx="12" fill="none" stroke="#89b4fa" stroke-width="2"/><rect x="216" y="106" width="896" height="38" rx="12" fill="#11111b" opacity="1"/><text x="584" y="131" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="14">FlowTrace Chat</text><text x="246" y="174" fill="#cba6f7" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="21" font-weight="700"># FlowTrace Chat</text><text x="246" y="204" fill="#6c7086" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13">Scope: current-node • type on the `&gt; ` line and press &lt;CR&gt; to send</text><text x="246" y="254" fill="#89b4fa" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="18" font-weight="700">## You</text><text x="246" y="286" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="15">Why does compact mode still keep the verbose renderer?</text><text x="246" y="344" fill="#a6e3a1" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="18" font-weight="700">## FlowTrace Agent</text><text x="246" y="378" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="15">The selected node points at add_verbose_node. It preserves the old multi-line</text><text x="246" y="402" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="15">layout for users who opt out with view.compact = false, while compact mode</text><text x="246" y="426" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="15">moves repeated metadata into the selected-node Summary panel.</text><line x1="246" y1="500" x2="1082" y2="500" stroke="#313244" stroke-width="1"/><text x="246" y="538" fill="#89b4fa" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="18" font-weight="700">## Ask</text><rect x="246" y="554" width="836" height="42" rx="6" fill="#1e1e2e" stroke="#45475a"/><text x="266" y="581" fill="#f5c2e7" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="16">&gt; What changes when I move the cursor?</text></g>
 </svg>
