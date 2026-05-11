@@ -1,0 +1,234 @@
+{
+  "schemaVersion": "0.1",
+  "id": "compact-detail-panel-changes",
+  "title": "Compact FlowTrace rows and selected-node detail panel changes",
+  "createdAt": "2026-05-11T00:00:00Z",
+  "root": "open-flowtrace-view",
+  "nodes": {
+    "open-flowtrace-view": {
+      "id": "open-flowtrace-view",
+      "label": "M.open initializes the compact tree viewer state",
+      "kind": "entrypoint",
+      "file": "packages/nvim/lua/flowtrace/init.lua",
+      "line": 195,
+      "column": 1,
+      "symbol": "M.open",
+      "anchor": "function M.open(path)",
+      "summary": "Changed: opening a trace now seeds state.selected_id with the artifact root before the first render, so the compact detail panel has a selected node immediately.",
+      "resolution": "manual",
+      "children": [
+        "view-defaults",
+        "redraw-with-view-options",
+        "cursor-autocmd"
+      ]
+    },
+    "view-defaults": {
+      "id": "view-defaults",
+      "label": "State carries compact view defaults",
+      "kind": "configuration",
+      "file": "packages/nvim/lua/flowtrace/init.lua",
+      "line": 8,
+      "column": 1,
+      "symbol": "state",
+      "anchor": "local state = {",
+      "summary": "Changed: state.config.view defaults the Neovim viewer to compact rows with the inline detail panel enabled, while preserving existing agent provider state.",
+      "resolution": "manual",
+      "branches": [
+        {
+          "label": "user overrides defaults in setup",
+          "target": "setup-view-options"
+        }
+      ]
+    },
+    "setup-view-options": {
+      "id": "setup-view-options",
+      "label": "setup merges optional view configuration",
+      "kind": "configuration",
+      "file": "packages/nvim/lua/flowtrace/init.lua",
+      "line": 144,
+      "column": 1,
+      "symbol": "M.setup",
+      "anchor": "function M.setup(opts)",
+      "summary": "Changed: require('flowtrace').setup({ view = ... }) now deep-merges compact and detail_panel options before any agent setup handling, letting users opt out of compact rows or hide the panel by default.",
+      "resolution": "manual",
+      "children": [
+        "readme-docs"
+      ]
+    },
+    "readme-docs": {
+      "id": "readme-docs",
+      "label": "README documents the compact view and D toggle",
+      "kind": "documentation",
+      "file": "README.md",
+      "line": 129,
+      "column": 1,
+      "symbol": "Default keys in the FlowTrace tree",
+      "anchor": "Default keys in the FlowTrace tree:",
+      "summary": "Changed: the user-facing docs mention that compact rows are now the default, describe the selected-node panel, document the D keybinding, and show setup options for disabling the new behavior.",
+      "resolution": "manual"
+    },
+    "redraw-with-view-options": {
+      "id": "redraw-with-view-options",
+      "label": "redraw passes view mode and selected node into tree.render",
+      "kind": "render",
+      "file": "packages/nvim/lua/flowtrace/init.lua",
+      "line": 73,
+      "column": 1,
+      "symbol": "redraw",
+      "anchor": "local function redraw(preserve_cursor)",
+      "summary": "Changed: redraw preserves the cursor when requested, calls tree.render with compact, detail_panel, and selected_id options, then restores the row after rewriting the nofile buffer.",
+      "resolution": "manual",
+      "children": [
+        "selected-id",
+        "render-entry"
+      ]
+    },
+    "selected-id": {
+      "id": "selected-id",
+      "label": "selected_id resolves the node for the detail panel",
+      "kind": "state",
+      "file": "packages/nvim/lua/flowtrace/init.lua",
+      "line": 64,
+      "column": 1,
+      "symbol": "selected_id",
+      "anchor": "local function selected_id()",
+      "summary": "Changed: the helper maps the current tree cursor row through state.index and falls back to the remembered selected id or flow root, keeping panel content tied to navigation.",
+      "resolution": "manual"
+    },
+    "render-entry": {
+      "id": "render-entry",
+      "label": "tree.render chooses compact or verbose rendering",
+      "kind": "render",
+      "file": "packages/nvim/lua/flowtrace/tree.lua",
+      "line": 188,
+      "column": 1,
+      "symbol": "M.render",
+      "anchor": "function M.render(flow, expanded, opts)",
+      "summary": "Changed: render now accepts opts, emits compact-specific help text, and branches between the new compact renderer plus detail panel and the preserved verbose renderer.",
+      "resolution": "manual",
+      "branches": [
+        {
+          "label": "compact mode enabled",
+          "target": "compact-node"
+        },
+        {
+          "label": "compact mode disabled",
+          "target": "verbose-node"
+        }
+      ],
+      "children": [
+        "detail-panel"
+      ]
+    },
+    "compact-node": {
+      "id": "compact-node",
+      "label": "add_compact_node writes one row per flow node",
+      "kind": "renderer",
+      "file": "packages/nvim/lua/flowtrace/tree.lua",
+      "line": 74,
+      "column": 1,
+      "symbol": "add_compact_node",
+      "anchor": "local function add_compact_node(lines, index, highlights, flow, expanded, id, prefix, is_last, branch_label, seen)",
+      "summary": "Changed: the compact renderer combines connector, expansion marker, optional branch label, file location, cleaned label, kind badge, collapsed child counts, and repeat guard into a single indexed row with targeted highlights.",
+      "resolution": "manual",
+      "children": [
+        "children-for",
+        "child-summary"
+      ]
+    },
+    "children-for": {
+      "id": "children-for",
+      "label": "children_for normalizes children and branch targets",
+      "kind": "helper",
+      "file": "packages/nvim/lua/flowtrace/tree.lua",
+      "line": 63,
+      "column": 1,
+      "symbol": "children_for",
+      "anchor": "local function children_for(node)",
+      "summary": "Changed: child and branch collection was factored into one helper so compact and verbose renderers traverse the same ordered tree shape.",
+      "resolution": "manual"
+    },
+    "child-summary": {
+      "id": "child-summary",
+      "label": "child_summary reports collapsed subtree size",
+      "kind": "helper",
+      "file": "packages/nvim/lua/flowtrace/tree.lua",
+      "line": 43,
+      "column": 1,
+      "symbol": "child_summary",
+      "anchor": "local function child_summary(node)",
+      "summary": "Changed: compact rows and detail lines can show step and branch counts, giving users some scale even when a subtree is collapsed or only the selected-node panel is visible.",
+      "resolution": "manual"
+    },
+    "detail-panel": {
+      "id": "detail-panel",
+      "label": "add_detail_panel appends selected-node details below the tree",
+      "kind": "renderer",
+      "file": "packages/nvim/lua/flowtrace/tree.lua",
+      "line": 158,
+      "column": 1,
+      "symbol": "add_detail_panel",
+      "anchor": "local function add_detail_panel(lines, index, highlights, id, node)",
+      "summary": "Changed: when detail_panel is enabled, render appends a separator, selected label, compact location/count context, and a visually emphasized Summary section while intentionally hiding lower-value meta type and anchor details.",
+      "resolution": "manual"
+    },
+    "verbose-node": {
+      "id": "verbose-node",
+      "label": "add_verbose_node preserves the old expanded metadata layout",
+      "kind": "renderer",
+      "file": "packages/nvim/lua/flowtrace/tree.lua",
+      "line": 118,
+      "column": 1,
+      "symbol": "add_verbose_node",
+      "anchor": "local function add_verbose_node(lines, index, highlights, flow, expanded, id, prefix, is_last, branch_label, seen)",
+      "summary": "Changed: the former add_node implementation remains available as add_verbose_node for users who disable compact mode via setup config.",
+      "resolution": "manual"
+    },
+    "cursor-autocmd": {
+      "id": "cursor-autocmd",
+      "label": "CursorMoved keeps the detail panel synced",
+      "kind": "interaction",
+      "file": "packages/nvim/lua/flowtrace/init.lua",
+      "line": 212,
+      "column": 3,
+      "symbol": "CursorMoved",
+      "anchor": "vim.api.nvim_create_autocmd('CursorMoved'",
+      "summary": "Changed: the FlowTrace buffer registers a CursorMoved autocmd that updates state.selected_id from the row index and redraws with cursor preservation whenever the selected node changes.",
+      "resolution": "manual",
+      "branches": [
+        {
+          "label": "press D to hide or show the panel",
+          "target": "toggle-detail-panel"
+        },
+        {
+          "label": "press o to collapse or expand and preserve cursor",
+          "target": "toggle-expand"
+        }
+      ]
+    },
+    "toggle-detail-panel": {
+      "id": "toggle-detail-panel",
+      "label": "D toggles the inline detail panel",
+      "kind": "interaction",
+      "file": "packages/nvim/lua/flowtrace/init.lua",
+      "line": 123,
+      "column": 3,
+      "symbol": "map('D'",
+      "anchor": "map('D', function()",
+      "summary": "Changed: the new D key flips state.config.view.detail_panel and redraws in place, letting users reclaim vertical space without leaving compact mode.",
+      "resolution": "manual"
+    },
+    "toggle-expand": {
+      "id": "toggle-expand",
+      "label": "o expand/collapse now redraws without moving the cursor",
+      "kind": "interaction",
+      "file": "packages/nvim/lua/flowtrace/init.lua",
+      "line": 119,
+      "column": 3,
+      "symbol": "map('o'",
+      "anchor": "map('o', function()",
+      "summary": "Changed: the existing expansion toggle now calls redraw(true), preserving cursor position while the compact tree and detail panel are regenerated.",
+      "resolution": "manual"
+    }
+  }
+}

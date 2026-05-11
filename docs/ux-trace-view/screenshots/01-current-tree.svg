@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="760" viewBox="0 0 1280 760">
+<defs><clipPath id="leftClip"><rect x="0" y="34" width="604" height="726"/></clipPath><clipPath id="rightClip"><rect x="628" y="34" width="628" height="726"/></clipPath></defs>
+<rect x="0" y="0" width="1280" height="760" rx="0" fill="#1e1e2e" opacity="1"/>
+<rect x="0" y="0" width="610" height="760" rx="0" fill="#181825" opacity="1"/>
+<rect x="610" y="0" width="2" height="760" rx="0" fill="#313244" opacity="1"/>
+<rect x="0" y="0" width="1280" height="34" rx="0" fill="#11111b" opacity="1"/>
+<text x="18" y="23" fill="#9399b2" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13" font-weight="400" opacity="1">FlowTrace tree</text>
+<text x="636" y="23" fill="#9399b2" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13" font-weight="400" opacity="1">packages/nvim/lua/flowtrace/tree.lua</text>
+<rect x="628" y="300" width="628" height="32" rx="0" fill="#313244" opacity="0.55"/>
+<text x="638" y="76" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13" font-weight="400" opacity="1"> 35  local function add_node(lines, index, highlights, flow, expanded, id, prefix, is_last, branch_label, seen)</text>
+<text x="638" y="104" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13" font-weight="400" opacity="1"> 36    local node = flow.nodes[id]</text>
+<text x="638" y="132" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13" font-weight="400" opacity="1"> 37    if not node then return end</text>
+<text x="638" y="160" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13" font-weight="400" opacity="1"> 38</text>
+<text x="638" y="188" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13" font-weight="400" opacity="1"> 39    local is_open = expanded[id] ~= false</text>
+<text x="638" y="216" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13" font-weight="400" opacity="1"> 40    local has_children = child_count(node) &gt; 0</text>
+<text x="638" y="244" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13" font-weight="400" opacity="1"> 41    local connector = is_last and &#x27;└─ &#x27; or &#x27;├─ &#x27;</text>
+<text x="638" y="272" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13" font-weight="400" opacity="1"> 42    local child_prefix = prefix .. (is_last and &#x27;   &#x27; or &#x27;│  &#x27;)</text>
+<text x="638" y="328" fill="#f38ba8" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13" font-weight="400" opacity="1"> 43    local marker = has_children and (is_open and &#x27;▾ &#x27; or &#x27;▸ &#x27;) or &#x27;&#x27;</text>
+<text x="638" y="356" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13" font-weight="400" opacity="1"> 44    local branch = branch_label and (&#x27;↳ &#x27; .. branch_label .. &#x27;: &#x27;) or &#x27;&#x27;</text>
+<text x="638" y="384" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13" font-weight="400" opacity="1"> 45    local location = location_text(node)</text>
+<text x="638" y="412" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13" font-weight="400" opacity="1"> 46</text>
+<text x="638" y="440" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13" font-weight="400" opacity="1"> 47    local row = add_line(lines, index, highlights, prefix .. connector .. marker .. branch .. location, id, node, &#x27;FlowTraceFile&#x27;)</text>
+<text x="638" y="468" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13" font-weight="400" opacity="1"> 48    add_highlight(highlights, row, #prefix, connector:gsub(&#x27;%s+$&#x27;, &#x27;&#x27;), &#x27;FlowTraceMarker&#x27;)</text>
+<g clip-path="url(#leftClip)"><text x="24" y="62" fill="#cba6f7" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13" font-weight="400" opacity="1">Flow: Lua plugin tree build</text>
+<text x="24" y="84" fill="#6c7086" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13" font-weight="400" opacity="1">Press &lt;CR&gt; jump • a ask • A ask flow • C clear chat • f/F flows • o toggle • q close</text>
+<text x="24" y="106" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13" font-weight="400" opacity="1"></text>
+<text x="24" y="128" fill="#a6e3a1" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13" font-weight="400" opacity="1">└─ ▾ packages/nvim/lua/flowtrace/init.lua:42</text>
+<text x="24" y="150" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13" font-weight="400" opacity="1">   setup creates commands and calls tree renderer</text>
+<text x="24" y="172" fill="#89b4fa" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13" font-weight="400" opacity="1">   type: entrypoint</text>
+<text x="24" y="194" fill="#9399b2" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13" font-weight="400" opacity="1">   The plugin opens a nofile buffer, parses the .flow.json, and renders jumpable rows.</text>
+<text x="24" y="216" fill="#a6e3a1" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13" font-weight="400" opacity="1">   └─ ▾ packages/nvim/lua/flowtrace/parser.lua:18</text>
+<text x="24" y="238" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13" font-weight="400" opacity="1">      decode and normalize flow JSON</text>
+<text x="24" y="260" fill="#89b4fa" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13" font-weight="400" opacity="1">      type: parser</text>
+<text x="24" y="282" fill="#9399b2" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13" font-weight="400" opacity="1">      Parser maps nodes by id and preserves children and branch targets.</text>
+<text x="24" y="304" fill="#a6e3a1" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13" font-weight="400" opacity="1">      ├─ packages/nvim/lua/flowtrace/window.lua:3</text>
+<text x="24" y="326" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13" font-weight="400" opacity="1">      │  open a persistent side buffer</text>
+<text x="24" y="348" fill="#89b4fa" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13" font-weight="400" opacity="1">      │  type: ui</text>
+<text x="24" y="370" fill="#9399b2" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13" font-weight="400" opacity="1">      │  Window opts enable wrap, cursorline, and nofile buffer state.</text>
+<text x="24" y="392" fill="#a6e3a1" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13" font-weight="400" opacity="1">      ├─ packages/nvim/lua/flowtrace/tree.lua:35</text>
+<text x="24" y="414" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13" font-weight="400" opacity="1">      │  recursively add node lines</text>
+<text x="24" y="436" fill="#89b4fa" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13" font-weight="400" opacity="1">      │  type: renderer</text>
+<text x="24" y="458" fill="#9399b2" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13" font-weight="400" opacity="1">      │  add_node writes file, label, metadata, summary, children, and branches.</text>
+<text x="24" y="480" fill="#fab387" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13" font-weight="400" opacity="1">      └─ ↳ repeated node: packages/nvim/lua/flowtrace/tree.lua:71</text>
+<text x="24" y="502" fill="#cdd6f4" font-family="JetBrains Mono, SFMono-Regular, Consolas, monospace" font-size="13" font-weight="400" opacity="1">         prevent infinite recursion</text></g>
+</svg>

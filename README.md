@@ -126,7 +126,9 @@ Commands:
 :FlowTraceAgentProvider [name] " show or switch chat provider
 ```
 
-Default keys in the FlowTrace tree: `<CR>` jump, `a` chat about the current node, `A` chat about the whole flow, `C` clear chat, `o` expand/collapse, `p` preview, `?` details, `r` refresh, `q` close.
+Default keys in the FlowTrace tree: `<CR>` jump, `a` chat about the current node, `A` chat about the whole flow, `C` clear chat, `o` expand/collapse, `p` preview, `?` details popup, `D` toggle the inline selected-node detail panel, `r` refresh, `q` close.
+
+The Neovim tree defaults to compact rows: each node is one line, while the currently selected node's metadata, anchor, child counts, and summary appear in a detail panel below the tree. You can opt out with `require("flowtrace").setup({ view = { compact = false } })` or hide the panel by default with `view = { detail_panel = false }`.
 
 Inside the chat window, type your question on the bottom `> ` input line and press `<CR>` to send. `q` or `<Esc>` closes the floating window while preserving the transcript; `:FlowTraceChat` reopens it.
 

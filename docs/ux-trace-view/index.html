@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>FlowTrace Neovim Tree UX Iterations</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #11111b;
+      --panel: #181825;
+      --panel-2: #1e1e2e;
+      --text: #cdd6f4;
+      --muted: #9399b2;
+      --border: #313244;
+      --accent: #cba6f7;
+      --good: #a6e3a1;
+      --warn: #f9e2af;
+      --branch: #fab387;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: radial-gradient(circle at top, #24243a 0, var(--bg) 46rem);
+      color: var(--text);
+      font: 15px/1.5 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    header, main { max-width: 1180px; margin: 0 auto; padding: 28px; }
+    header { padding-top: 44px; }
+    h1 { margin: 0 0 8px; font-size: clamp(30px, 4vw, 52px); line-height: 1.05; }
+    h2 { margin: 0 0 10px; color: var(--accent); }
+    h3 { margin: 0 0 8px; }
+    p { color: var(--muted); max-width: 78ch; }
+    .lede { font-size: 18px; }
+    .toc, .card, .recommendation {
+      background: color-mix(in srgb, var(--panel) 88%, transparent);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      box-shadow: 0 20px 80px rgb(0 0 0 / .25);
+    }
+    .toc { padding: 18px 20px; display: grid; gap: 8px; }
+    .toc a { color: var(--text); text-decoration: none; }
+    .toc a:hover { color: var(--accent); }
+    .stack { display: grid; gap: 28px; }
+    .card { overflow: hidden; }
+    .shot { background: var(--panel-2); border-bottom: 1px solid var(--border); }
+    .shot img { display: block; width: 100%; height: auto; }
+    .body { padding: 22px; }
+    .meta { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+    ul { margin: 8px 0 0 20px; padding: 0; }
+    li { margin: 6px 0; }
+    .pros strong { color: var(--good); }
+    .cons strong { color: var(--branch); }
+    .badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; background: #313244; color: var(--muted); font-size: 12px; margin-bottom: 10px; }
+    .recommendation { margin-top: 30px; padding: 24px; border-color: color-mix(in srgb, var(--accent), var(--border) 60%); }
+    .ranking { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+    .rank { background: #1e1e2e; border: 1px solid var(--border); border-radius: 14px; padding: 14px; }
+    .rank b { color: var(--warn); }
+    footer { max-width: 1180px; margin: 0 auto; padding: 20px 28px 48px; color: var(--muted); }
+    code { background: #313244; padding: 2px 6px; border-radius: 6px; }
+    @media (max-width: 800px) { .meta, .ranking { grid-template-columns: 1fr; } header, main { padding-inline: 16px; } }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>FlowTrace Neovim tree UX explorations</h1>
+    <p class="lede">The current tree is useful, but large traces can bury lineage between wrapped summaries, metadata rows, and deep indentation. These mock screenshots explore incremental ways to make “where am I and how did I get here?” obvious without abandoning a terminal-native Neovim workflow.</p>
+    <nav class="toc" aria-label="Concept links">
+      <a href="#current">0. Current baseline</a>
+      <a href="#breadcrumb">1. Sticky breadcrumb + active lineage</a>
+      <a href="#compact">2. Compact rows + selected detail pane</a>
+      <a href="#focus">3. Focus / show-my-path mode</a>
+      <a href="#rails">4. Scope rails + branch badges</a>
+      <a href="#minimap">5. Depth gutter + minimap</a>
+    </nav>
+  </header>
+
+  <main class="stack">
+    <section id="current" class="card">
+      <div class="shot"><img src="screenshots/01-current-tree.png" alt="Current FlowTrace tree mockup" /></div>
+      <div class="body">
+        <span class="badge">baseline</span>
+        <h2>0. Current baseline</h2>
+        <p>Represents the existing mental model: a persistent side tree with a jumpable location row plus label, metadata, and summary rows for every node.</p>
+        <div class="meta">
+          <div class="pros"><h3><strong>Pros</strong></h3><ul><li>Very explicit: every node carries its summary inline.</li><li>Simple implementation and familiar file-tree affordances.</li><li>Works well for short and medium traces.</li></ul></div>
+          <div class="cons"><h3><strong>Cons</strong></h3><ul><li>Lineage gets separated by annotation rows.</li><li>Deep branches consume vertical space quickly.</li><li>Branches and repeated nodes do not pop strongly enough.</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="breadcrumb" class="card">
+      <div class="shot"><img src="screenshots/02-breadcrumb-lineage.png" alt="Sticky breadcrumb and active lineage mockup" /></div>
+      <div class="body">
+        <span class="badge">orientation layer</span>
+        <h2>1. Sticky breadcrumb + active lineage</h2>
+        <p>Add a sticky path line based on cursor position, then dim unrelated rows while highlighting ancestors and the current node.</p>
+        <div class="meta">
+          <div class="pros"><h3><strong>Pros</strong></h3><ul><li>Directly answers “what path am I on?” even after scrolling.</li><li>Can be layered onto the current tree renderer.</li><li>Low cognitive overhead; works like IDE breadcrumbs.</li></ul></div>
+          <div class="cons"><h3><strong>Cons</strong></h3><ul><li>Long paths need truncation rules.</li><li>Highlight contrast depends on colorscheme.</li><li>Still leaves dense metadata in the main tree.</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="compact" class="card">
+      <div class="shot"><img src="screenshots/03-compact-detail-pane.png" alt="Compact rows and selected detail pane mockup" /></div>
+      <div class="body">
+        <span class="badge">density</span>
+        <h2>2. Compact rows + selected detail pane</h2>
+        <p>Make each node a one-line row, then show the selected node’s full metadata and summary in a footer or floating detail pane.</p>
+        <div class="meta">
+          <div class="pros"><h3><strong>Pros</strong></h3><ul><li>More lineage fits on screen at once.</li><li>Preserves rich details without repeating them everywhere.</li><li>Nice default for large traces; details remain one glance away.</li></ul></div>
+          <div class="cons"><h3><strong>Cons</strong></h3><ul><li>Less prose visible while scanning.</li><li>Requires a selected-node stateful render path.</li><li>Footer consumes fixed vertical space.</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="focus" class="card">
+      <div class="shot"><img src="screenshots/04-focus-path-mode.png" alt="Focus show-my-path mode mockup" /></div>
+      <div class="body">
+        <span class="badge">declutter command</span>
+        <h2>3. Focus / show-my-path mode</h2>
+        <p>A toggle that hides distant branches and keeps ancestors, the selected node, siblings, and immediate children.</p>
+        <div class="meta">
+          <div class="pros"><h3><strong>Pros</strong></h3><ul><li>Best for huge traces where the expanded tree becomes noise.</li><li>Maintains enough sibling context for local navigation.</li><li>Could be implemented as a render filter, not schema change.</li></ul></div>
+          <div class="cons"><h3><strong>Cons</strong></h3><ul><li>Users need a clear indicator that content is hidden.</li><li>May feel surprising if it mutates expansion state.</li><li>Less useful when the goal is global overview.</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="rails" class="card">
+      <div class="shot"><img src="screenshots/05-scope-rails-badges.png" alt="Scope rails and branch badges mockup" /></div>
+      <div class="body">
+        <span class="badge">visual grammar</span>
+        <h2>4. Scope rails + branch badges</h2>
+        <p>Replace some ASCII tree noise with persistent colored rails and make decision points explicit with compact badges.</p>
+        <div class="meta">
+          <div class="pros"><h3><strong>Pros</strong></h3><ul><li>Reinforces depth across wrapped or visually busy rows.</li><li>Branches become semantically distinct from plain children.</li><li>Still feels terminal-native and incremental.</li></ul></div>
+          <div class="cons"><h3><strong>Cons</strong></h3><ul><li>Relies on highlight groups and terminal color support.</li><li>Deep nesting can still overflow horizontally.</li><li>Badges are only as good as branch labels in the artifact.</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="minimap" class="card">
+      <div class="shot"><img src="screenshots/06-minimap-depth-gutter.png" alt="Depth gutter and minimap mockup" /></div>
+      <div class="body">
+        <span class="badge">overview</span>
+        <h2>5. Depth gutter + minimap</h2>
+        <p>Add path/depth numbers on rows plus a tiny right-side overview showing viewport, depth changes, and active lineage.</p>
+        <div class="meta">
+          <div class="pros"><h3><strong>Pros</strong></h3><ul><li>Great for very large traces where scroll position matters.</li><li>Depth numbers are searchable and easy to reference in chat.</li><li>Minimap gives a quick sense of remaining tree shape.</li></ul></div>
+          <div class="cons"><h3><strong>Cons</strong></h3><ul><li>Most complex concept to implement cleanly.</li><li>Consumes horizontal space in an already split UI.</li><li>Can become visual noise if always enabled.</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="recommendation">
+      <h2>Suggested path</h2>
+      <div class="ranking">
+        <div class="rank"><b>First ship:</b><br />Breadcrumb + active lineage. It solves the core complaint with the smallest layout change.</div>
+        <div class="rank"><b>Second:</b><br />Compact mode + detail pane as an opt-in for large traces.</div>
+        <div class="rank"><b>Power-user:</b><br />Focus mode for “I am lost, show me only this path.”</div>
+      </div>
+      <p>Rails/badges are a good visual polish pass that can ride along with any of the above. The minimap is likely worth prototyping last, or only as a toggle, because it has the highest complexity-to-risk ratio.</p>
+    </section>
+  </main>
+
+  <footer>
+    Generated mockups live in <code>docs/ux-trace-view/screenshots/</code>. Source SVGs are included next to the PNG screenshots.
+  </footer>
+</body>
+</html>

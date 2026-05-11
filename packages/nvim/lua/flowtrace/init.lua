@@ -5,7 +5,16 @@ local actions = require('flowtrace.actions')
 local agent = require('flowtrace.agent')
 
 local M = {}
-local state = { expanded = {}, agent_chat = {}, config = { agent = nil, agent_providers = {}, agent_provider = nil } }
+local state = {
+  expanded = {},
+  agent_chat = {},
+  config = {
+    agent = nil,
+    agent_providers = {},
+    agent_provider = nil,
+    view = { compact = true, detail_panel = true },
+  },
+}
 local ns = vim.api.nvim_create_namespace('flowtrace')
 
 local function flow_files()
@@ -41,11 +50,37 @@ local function setup_highlights()
   vim.api.nvim_set_hl(0, 'FlowTraceMeta', { fg = '#89b4fa' })
   vim.api.nvim_set_hl(0, 'FlowTraceFile', { fg = '#a6e3a1' })
   vim.api.nvim_set_hl(0, 'FlowTraceSummary', { fg = '#9399b2' })
+  vim.api.nvim_set_hl(0, 'FlowTraceDetailBorder', { fg = '#45475a' })
+  vim.api.nvim_set_hl(0, 'FlowTraceDetailTitle', { fg = '#f9e2af', bold = true })
+  vim.api.nvim_set_hl(0, 'FlowTraceDetailSummaryTitle', { fg = '#cba6f7', bold = true })
+  vim.api.nvim_set_hl(0, 'FlowTraceDetailSummary', { fg = '#cdd6f4' })
 end
 
-local function redraw()
+local function current_tree_item()
+  if not state.win or not vim.api.nvim_win_is_valid(state.win) then return nil end
+  return state.index and state.index[vim.api.nvim_win_get_cursor(state.win)[1]] or nil
+end
+
+local function selected_id()
+  local item = current_tree_item()
+  if item then
+    state.selected_id = item.id
+    return item.id
+  end
+  return state.selected_id or (state.flow and state.flow.root) or nil
+end
+
+local function redraw(preserve_cursor)
   if not state.buf or not vim.api.nvim_buf_is_valid(state.buf) then return end
-  local lines, index, highlights = tree.render(state.flow, state.expanded)
+  local cursor = nil
+  if preserve_cursor and state.win and vim.api.nvim_win_is_valid(state.win) then
+    cursor = vim.api.nvim_win_get_cursor(state.win)
+  end
+  local lines, index, highlights = tree.render(state.flow, state.expanded, {
+    compact = state.config.view.compact,
+    detail_panel = state.config.view.detail_panel,
+    selected_id = selected_id(),
+  })
   state.index = index
   vim.bo[state.buf].modifiable = true
   vim.api.nvim_buf_set_lines(state.buf, 0, -1, false, lines)
@@ -58,6 +93,10 @@ local function redraw()
     })
   end
   vim.bo[state.buf].modifiable = false
+  if cursor and state.win and vim.api.nvim_win_is_valid(state.win) then
+    local row = math.min(cursor[1], #lines)
+    if row > 0 then vim.api.nvim_win_set_cursor(state.win, { row, cursor[2] }) end
+  end
 end
 
 local function map(lhs, rhs)
@@ -79,7 +118,11 @@ local function setup_keys()
   map('r', function() M.refresh() end)
   map('o', function()
     local item = state.index[vim.api.nvim_win_get_cursor(state.win)[1]]
-    if item then state.expanded[item.id] = state.expanded[item.id] == false and true or false; redraw() end
+    if item then state.expanded[item.id] = state.expanded[item.id] == false and true or false; redraw(true) end
+  end)
+  map('D', function()
+    state.config.view.detail_panel = not state.config.view.detail_panel
+    redraw(true)
   end)
 end
 
@@ -100,12 +143,16 @@ end
 
 function M.setup(opts)
   opts = opts or {}
+  if opts.view then
+    state.config.view = vim.tbl_deep_extend('force', state.config.view, opts.view)
+  end
   if opts.agent == false then
     state.config.agent = nil
     state.config.agent_providers = {}
     state.config.agent_provider = nil
     return
   end
+
   if not opts.agent then return end
 
   if opts.agent.providers then
@@ -155,12 +202,23 @@ function M.open(path)
   state.path = path
   state.flow = parser.load(path)
   state.expanded = state.expanded or {}
+  state.selected_id = state.flow.root
   if state.buf and vim.api.nvim_buf_is_valid(state.buf) and state.win and vim.api.nvim_win_is_valid(state.win) then
     redraw()
     return
   end
   state.buf, state.win = window.open_buffer()
   setup_keys()
+  vim.api.nvim_create_autocmd('CursorMoved', {
+    buffer = state.buf,
+    callback = function()
+      local item = current_tree_item()
+      if item and item.id ~= state.selected_id then
+        state.selected_id = item.id
+        redraw(true)
+      end
+    end,
+  })
   redraw()
 end
 
