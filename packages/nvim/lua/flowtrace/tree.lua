@@ -155,10 +155,8 @@ local function add_verbose_node(lines, index, highlights, flow, expanded, id, pr
   end
 end
 
-local function add_detail_panel(lines, index, highlights, id, node)
+local function add_detail_lines(lines, index, highlights, id, node)
   if not node then return end
-  add_line(lines, index, highlights, '', nil, nil, nil)
-  add_line(lines, index, highlights, '──────────────── selected node ────────────────', nil, nil, 'FlowTraceDetailBorder')
   add_line(lines, index, highlights, 'Selected: ' .. (node.label or id), nil, nil, 'FlowTraceDetailTitle')
 
   local context = { location_text(node) }
@@ -172,6 +170,25 @@ local function add_detail_panel(lines, index, highlights, id, node)
     add_line(lines, index, highlights, 'Summary', nil, nil, 'FlowTraceDetailSummaryTitle')
     add_line(lines, index, highlights, summary, nil, nil, 'FlowTraceDetailSummary')
   end
+end
+
+local function add_detail_panel(lines, index, highlights, id, node)
+  if not node then return end
+  add_line(lines, index, highlights, '', nil, nil, nil)
+  add_line(lines, index, highlights, '──────────────── selected node ────────────────', nil, nil, 'FlowTraceDetailBorder')
+  add_detail_lines(lines, index, highlights, id, node)
+end
+
+function M.render_detail(flow, id)
+  local lines = {}
+  local highlights = {}
+  if flow and id then
+    add_detail_lines(lines, {}, highlights, id, flow.nodes[id])
+  end
+  if #lines == 0 then
+    add_line(lines, {}, highlights, 'No FlowTrace node selected', nil, nil, 'FlowTraceSummary')
+  end
+  return lines, highlights
 end
 
 function M.render(flow, expanded, opts)

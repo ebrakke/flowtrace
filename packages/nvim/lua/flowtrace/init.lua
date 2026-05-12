@@ -70,6 +70,36 @@ local function selected_id()
   return state.selected_id or (state.flow and state.flow.root) or nil
 end
 
+local function apply_lines(buf, lines, highlights)
+  vim.bo[buf].modifiable = true
+  vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
+  vim.api.nvim_buf_clear_namespace(buf, ns, 0, -1)
+  for _, hl in ipairs(highlights or {}) do
+    vim.api.nvim_buf_set_extmark(buf, ns, hl.row, hl.col, {
+      end_col = hl.end_col,
+      hl_group = hl.group,
+      priority = 100,
+    })
+  end
+  vim.bo[buf].modifiable = false
+end
+
+local function ensure_detail_window()
+  if not state.config.view.detail_panel then return false end
+  if state.detail_buf and vim.api.nvim_buf_is_valid(state.detail_buf) and state.detail_win and vim.api.nvim_win_is_valid(state.detail_win) then
+    return true
+  end
+  if not state.win or not vim.api.nvim_win_is_valid(state.win) then return false end
+  state.detail_buf, state.detail_win = window.open_detail_buffer(state.win)
+  return true
+end
+
+local function redraw_detail()
+  if not ensure_detail_window() then return end
+  local lines, highlights = tree.render_detail(state.flow, selected_id())
+  apply_lines(state.detail_buf, lines, highlights)
+end
+
 local function redraw(preserve_cursor)
   if not state.buf or not vim.api.nvim_buf_is_valid(state.buf) then return end
   local cursor = nil
@@ -78,25 +108,16 @@ local function redraw(preserve_cursor)
   end
   local lines, index, highlights = tree.render(state.flow, state.expanded, {
     compact = state.config.view.compact,
-    detail_panel = state.config.view.detail_panel,
+    detail_panel = false,
     selected_id = selected_id(),
   })
   state.index = index
-  vim.bo[state.buf].modifiable = true
-  vim.api.nvim_buf_set_lines(state.buf, 0, -1, false, lines)
-  vim.api.nvim_buf_clear_namespace(state.buf, ns, 0, -1)
-  for _, hl in ipairs(highlights or {}) do
-    vim.api.nvim_buf_set_extmark(state.buf, ns, hl.row, hl.col, {
-      end_col = hl.end_col,
-      hl_group = hl.group,
-      priority = 100,
-    })
-  end
-  vim.bo[state.buf].modifiable = false
+  apply_lines(state.buf, lines, highlights)
   if cursor and state.win and vim.api.nvim_win_is_valid(state.win) then
     local row = math.min(cursor[1], #lines)
     if row > 0 then vim.api.nvim_win_set_cursor(state.win, { row, cursor[2] }) end
   end
+  redraw_detail()
 end
 
 local function map(lhs, rhs)
@@ -122,6 +143,9 @@ local function setup_keys()
   end)
   map('D', function()
     state.config.view.detail_panel = not state.config.view.detail_panel
+    if not state.config.view.detail_panel and state.detail_win and vim.api.nvim_win_is_valid(state.detail_win) then
+      vim.api.nvim_win_close(state.detail_win, true)
+    end
     redraw(true)
   end)
 end
@@ -215,7 +239,7 @@ function M.open(path)
       local item = current_tree_item()
       if item and item.id ~= state.selected_id then
         state.selected_id = item.id
-        redraw(true)
+        redraw_detail()
       end
     end,
   })
@@ -249,6 +273,7 @@ function M.refresh()
 end
 
 function M.close()
+  if state.detail_win and vim.api.nvim_win_is_valid(state.detail_win) then vim.api.nvim_win_close(state.detail_win, true) end
   if state.win and vim.api.nvim_win_is_valid(state.win) then vim.api.nvim_win_close(state.win, true) end
 end
 

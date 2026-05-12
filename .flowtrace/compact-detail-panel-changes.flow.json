@@ -10,11 +10,11 @@
       "label": "M.open initializes the compact tree viewer state",
       "kind": "entrypoint",
       "file": "packages/nvim/lua/flowtrace/init.lua",
-      "line": 195,
+      "line": 219,
       "column": 1,
       "symbol": "M.open",
       "anchor": "function M.open(path)",
-      "summary": "Changed: opening a trace now seeds state.selected_id with the artifact root before the first render, so the compact detail panel has a selected node immediately.",
+      "summary": "Changed: opening a trace seeds state.selected_id with the artifact root, creates the tree split, and redraws; redraw now also ensures a separate detail split exists when enabled.",
       "resolution": "manual",
       "children": [
         "view-defaults",
@@ -45,7 +45,7 @@
       "label": "setup merges optional view configuration",
       "kind": "configuration",
       "file": "packages/nvim/lua/flowtrace/init.lua",
-      "line": 144,
+      "line": 168,
       "column": 1,
       "symbol": "M.setup",
       "anchor": "function M.setup(opts)",
@@ -64,7 +64,7 @@
       "column": 1,
       "symbol": "Default keys in the FlowTrace tree",
       "anchor": "Default keys in the FlowTrace tree:",
-      "summary": "Changed: the user-facing docs mention that compact rows are now the default, describe the selected-node panel, document the D keybinding, and show setup options for disabling the new behavior.",
+      "summary": "Changed: the docs now explain that the selected-node detail panel is a separate split that stays visible while long compact trees scroll.",
       "resolution": "manual"
     },
     "redraw-with-view-options": {
@@ -72,15 +72,16 @@
       "label": "redraw passes view mode and selected node into tree.render",
       "kind": "render",
       "file": "packages/nvim/lua/flowtrace/init.lua",
-      "line": 73,
+      "line": 103,
       "column": 1,
       "symbol": "redraw",
       "anchor": "local function redraw(preserve_cursor)",
-      "summary": "Changed: redraw preserves the cursor when requested, calls tree.render with compact, detail_panel, and selected_id options, then restores the row after rewriting the nofile buffer.",
+      "summary": "Changed: redraw now renders only the scrollable tree buffer, passes detail_panel=false to avoid inline details, restores the cursor, and then refreshes the separate selected-node detail panel.",
       "resolution": "manual",
       "children": [
         "selected-id",
-        "render-entry"
+        "render-entry",
+        "redraw-detail"
       ]
     },
     "selected-id": {
@@ -100,11 +101,11 @@
       "label": "tree.render chooses compact or verbose rendering",
       "kind": "render",
       "file": "packages/nvim/lua/flowtrace/tree.lua",
-      "line": 188,
+      "line": 194,
       "column": 1,
       "symbol": "M.render",
       "anchor": "function M.render(flow, expanded, opts)",
-      "summary": "Changed: render now accepts opts, emits compact-specific help text, and branches between the new compact renderer plus detail panel and the preserved verbose renderer.",
+      "summary": "Changed: render still accepts opts and can produce compact or verbose tree rows; the main Neovim flow now disables inline detail rendering because details live in a separate split.",
       "resolution": "manual",
       "branches": [
         {
@@ -115,9 +116,6 @@
           "label": "compact mode disabled",
           "target": "verbose-node"
         }
-      ],
-      "children": [
-        "detail-panel"
       ]
     },
     "compact-node": {
@@ -165,11 +163,11 @@
       "label": "add_detail_panel appends selected-node details below the tree",
       "kind": "renderer",
       "file": "packages/nvim/lua/flowtrace/tree.lua",
-      "line": 158,
+      "line": 182,
       "column": 1,
       "symbol": "add_detail_panel",
       "anchor": "local function add_detail_panel(lines, index, highlights, id, node)",
-      "summary": "Changed: when detail_panel is enabled, render appends a separator, selected label, compact location/count context, and a visually emphasized Summary section while intentionally hiding lower-value meta type and anchor details.",
+      "summary": "Changed: render_detail formats just the selected-node details for the dedicated detail buffer, reusing add_detail_lines so the summary can stay visible while the tree scrolls independently.",
       "resolution": "manual"
     },
     "verbose-node": {
@@ -189,15 +187,15 @@
       "label": "CursorMoved keeps the detail panel synced",
       "kind": "interaction",
       "file": "packages/nvim/lua/flowtrace/init.lua",
-      "line": 212,
+      "line": 236,
       "column": 3,
       "symbol": "CursorMoved",
       "anchor": "vim.api.nvim_create_autocmd('CursorMoved'",
-      "summary": "Changed: the FlowTrace buffer registers a CursorMoved autocmd that updates state.selected_id from the row index and redraws with cursor preservation whenever the selected node changes.",
+      "summary": "Changed: the FlowTrace buffer registers a CursorMoved autocmd that updates state.selected_id from the row index and refreshes only the detail split, avoiding a full tree redraw on every cursor move.",
       "resolution": "manual",
       "branches": [
         {
-          "label": "press D to hide or show the panel",
+          "label": "press D to hide or show the detail split",
           "target": "toggle-detail-panel"
         },
         {
@@ -208,14 +206,14 @@
     },
     "toggle-detail-panel": {
       "id": "toggle-detail-panel",
-      "label": "D toggles the inline detail panel",
+      "label": "D toggles the separate detail panel",
       "kind": "interaction",
       "file": "packages/nvim/lua/flowtrace/init.lua",
-      "line": 123,
+      "line": 144,
       "column": 3,
       "symbol": "map('D'",
       "anchor": "map('D', function()",
-      "summary": "Changed: the new D key flips state.config.view.detail_panel and redraws in place, letting users reclaim vertical space without leaving compact mode.",
+      "summary": "Changed: the D key flips state.config.view.detail_panel, closes the separate detail window when hiding it, or lets redraw recreate the split when showing it again.",
       "resolution": "manual"
     },
     "toggle-expand": {
@@ -223,11 +221,54 @@
       "label": "o expand/collapse now redraws without moving the cursor",
       "kind": "interaction",
       "file": "packages/nvim/lua/flowtrace/init.lua",
-      "line": 119,
+      "line": 140,
       "column": 3,
       "symbol": "map('o'",
       "anchor": "map('o', function()",
       "summary": "Changed: the existing expansion toggle now calls redraw(true), preserving cursor position while the compact tree and detail panel are regenerated.",
+      "resolution": "manual"
+    },
+    "ensure-detail-window": {
+      "id": "ensure-detail-window",
+      "label": "ensure_detail_window creates a persistent detail split",
+      "kind": "ui",
+      "file": "packages/nvim/lua/flowtrace/init.lua",
+      "line": 87,
+      "column": 1,
+      "symbol": "ensure_detail_window",
+      "anchor": "local function ensure_detail_window()",
+      "summary": "Changed: the detail panel is now a real Neovim split below the tree. The helper reuses an existing detail window or calls window.open_detail_buffer when the panel is enabled and missing.",
+      "resolution": "manual",
+      "children": [
+        "open-detail-buffer"
+      ]
+    },
+    "redraw-detail": {
+      "id": "redraw-detail",
+      "label": "redraw_detail updates only the selected-node panel",
+      "kind": "render",
+      "file": "packages/nvim/lua/flowtrace/init.lua",
+      "line": 97,
+      "column": 1,
+      "symbol": "redraw_detail",
+      "anchor": "local function redraw_detail()",
+      "summary": "Changed: selected-node updates render detail lines into the detail buffer without rewriting the tree, so the tree scroll position is independent from the sticky summary panel.",
+      "resolution": "manual",
+      "children": [
+        "ensure-detail-window",
+        "detail-panel"
+      ]
+    },
+    "open-detail-buffer": {
+      "id": "open-detail-buffer",
+      "label": "open_detail_buffer splits the left FlowTrace column",
+      "kind": "ui",
+      "file": "packages/nvim/lua/flowtrace/window.lua",
+      "line": 29,
+      "column": 1,
+      "symbol": "open_detail_buffer",
+      "anchor": "function M.open_detail_buffer(tree_win)",
+      "summary": "Changed: the window module can create a small nofile flowtrace-detail split below the tree window, with wrapping enabled and cursorline disabled for a read-only details panel.",
       "resolution": "manual"
     }
   }
