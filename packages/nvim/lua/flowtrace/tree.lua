@@ -32,6 +32,8 @@ end
 local function meta_text(node)
   local parts = {}
   if node.kind then table.insert(parts, 'type: ' .. node.kind) end
+  if node.relevance then table.insert(parts, 'relevance: ' .. node.relevance) end
+  if node.evidence then table.insert(parts, 'evidence: ' .. node.evidence) end
   if node.resolution and node.resolution ~= 'manual' then table.insert(parts, 'source: ' .. node.resolution) end
   return table.concat(parts, ' • ')
 end
@@ -51,8 +53,11 @@ local function child_summary(node)
 end
 
 local function kind_badge(node)
-  if not node.kind or node.kind == '' then return '' end
-  return ' [' .. node.kind .. ']'
+  local parts = {}
+  if node.kind and node.kind ~= '' then table.insert(parts, node.kind) end
+  if node.relevance and node.relevance ~= '' then table.insert(parts, node.relevance) end
+  if #parts == 0 then return '' end
+  return ' [' .. table.concat(parts, ' • ') .. ']'
 end
 
 local function add_annotation(lines, index, highlights, prefix, id, node, text, group)
@@ -170,6 +175,10 @@ local function add_detail_lines(lines, index, highlights, id, node)
     add_line(lines, index, highlights, 'Summary', nil, nil, 'FlowTraceDetailSummaryTitle')
     add_line(lines, index, highlights, summary, nil, nil, 'FlowTraceDetailSummary')
   end
+
+  if node.tags and #node.tags > 0 then
+    add_line(lines, index, highlights, 'Tags: ' .. table.concat(node.tags, ', '), nil, nil, 'FlowTraceMeta')
+  end
 end
 
 local function add_detail_panel(lines, index, highlights, id, node)
@@ -177,6 +186,34 @@ local function add_detail_panel(lines, index, highlights, id, node)
   add_line(lines, index, highlights, '', nil, nil, nil)
   add_line(lines, index, highlights, '──────────────── selected node ────────────────', nil, nil, 'FlowTraceDetailBorder')
   add_detail_lines(lines, index, highlights, id, node)
+end
+
+local function add_decision_summary(lines, index, highlights, flow)
+  if flow.thesis and flow.thesis ~= '' then
+    add_line(lines, index, highlights, 'Thesis: ' .. flow.thesis, nil, nil, 'FlowTraceSummary')
+  end
+  if flow.sections and #flow.sections > 0 then
+    add_line(lines, index, highlights, 'Sections: ' .. tostring(#flow.sections), nil, nil, 'FlowTraceSummary')
+  end
+  if flow.investigation and flow.investigation.openQuestions and #flow.investigation.openQuestions > 0 then
+    add_line(lines, index, highlights, 'Open questions: ' .. tostring(#flow.investigation.openQuestions), nil, nil, 'FlowTraceSummary')
+  end
+  if flow.concepts and #flow.concepts > 0 then
+    local names = {}
+    for _, concept in ipairs(flow.concepts) do
+      if concept.name then table.insert(names, concept.name) end
+    end
+    if #names > 0 then add_line(lines, index, highlights, 'Concepts: ' .. table.concat(names, ', '), nil, nil, 'FlowTraceSummary') end
+  end
+  if flow.impact and flow.impact.change then
+    add_line(lines, index, highlights, 'Impact: ' .. flow.impact.change, nil, nil, 'FlowTraceSummary')
+  end
+  if flow.testScenarios and #flow.testScenarios > 0 then
+    add_line(lines, index, highlights, 'Test scenarios: ' .. tostring(#flow.testScenarios), nil, nil, 'FlowTraceSummary')
+  end
+  if flow.confidenceChecks and #flow.confidenceChecks > 0 then
+    add_line(lines, index, highlights, 'Confidence checks: ' .. tostring(#flow.confidenceChecks), nil, nil, 'FlowTraceSummary')
+  end
 end
 
 function M.render_detail(flow, id)
@@ -202,6 +239,14 @@ function M.render(flow, expanded, opts)
   local selected_id = opts.selected_id or flow.root
 
   add_line(lines, index, highlights, 'Flow: ' .. (flow.title or flow.id or 'untitled'), nil, nil, 'FlowTraceTitle')
+  if flow.investigation then
+    local inv = flow.investigation
+    local parts = {}
+    if inv.lens then table.insert(parts, 'lens: ' .. inv.lens) end
+    if inv.goal then table.insert(parts, 'goal: ' .. inv.goal) end
+    if #parts > 0 then add_line(lines, index, highlights, table.concat(parts, ' • '), nil, nil, 'FlowTraceSummary') end
+  end
+  add_decision_summary(lines, index, highlights, flow)
   if compact then
     add_line(lines, index, highlights, 'Compact view: one row per node • selected details below • <CR> jump • p preview • ? popup • D panel • o toggle • q close', nil, nil, 'FlowTraceHelp')
   else

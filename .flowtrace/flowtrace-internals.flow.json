@@ -1,0 +1,539 @@
+{
+  "schemaVersion": "0.1",
+  "id": "flowtrace-internals",
+  "title": "FlowTrace internals: artifact contract, CLI, validator, two renderers, and drift-tolerant jump",
+  "createdAt": "2026-05-19T00:00:00Z",
+  "root": "thesis-artifact",
+  "thesis": "FlowTrace is a static walkthrough artifact (.flow.json) plus the smallest tooling that makes it useful: a Go CLI that scaffolds, validates, and prints it, and a Neovim plugin that renders it and jumps to source with anchor-based drift tolerance. The agent does the understanding; the tooling only enforces the schema and the existence of every (file, line) it points at.",
+  "investigation": {
+    "goal": "Build a deep mental model of FlowTrace's internals: the data contract, who produces it, who validates it, who renders it, and how jumps survive file drift.",
+    "lens": "subsystem-understanding",
+    "question": "How does flowtrace work end-to-end?",
+    "openQuestions": [
+      "When an agent authors a flow (resolution=\"manual\") vs when `flowtrace build` scaffolds it (resolution=\"search\"), what guarantees still hold?",
+      "How does the Neovim jump survive code drift if `node.line` is stale? (anchor → symbol → line)",
+      "What is the actual contract between the JSON schema (schema.go) and the Lua parser (parser.lua)?"
+    ]
+  },
+  "sections": [
+    {
+      "title": "System thesis",
+      "summary": "The mental model: artifact + two consumers (CLI + Neovim).",
+      "nodes": ["thesis-artifact"]
+    },
+    {
+      "title": "Artifact contract (the only real API)",
+      "summary": "The Go structs that define a valid .flow.json. Every other module reads or produces these.",
+      "nodes": ["schema-flow", "schema-node", "schema-allowed"]
+    },
+    {
+      "title": "CLI dispatch",
+      "summary": "Entrypoint and subcommand routing.",
+      "nodes": ["cli-main", "cli-build-cmd", "cli-validate-cmd", "cli-print-cmd"]
+    },
+    {
+      "title": "Authoring path A: search-heuristic scaffold (`flowtrace build`)",
+      "summary": "Deterministic best-effort scaffold from a natural-language request. Disposable draft per the skill.",
+      "nodes": ["build-pipeline", "build-terms", "build-search", "build-heuristic", "build-normalize"]
+    },
+    {
+      "title": "Authoring path B: agent-authored",
+      "summary": "The skill workflow: agent reads code itself, writes JSON with resolution=\"manual\", then validates.",
+      "nodes": ["authoring-skill-readme"]
+    },
+    {
+      "title": "Validation (the contract enforcement point)",
+      "summary": "Schema shape + filesystem existence + line-in-bounds. The reason artifacts are trustworthy.",
+      "nodes": ["validate-entry", "validate-node-fs", "validate-counts"]
+    },
+    {
+      "title": "Renderer 1: CLI `print` (ASCII tree)",
+      "nodes": ["print-entry", "print-header", "print-node"]
+    },
+    {
+      "title": "Renderer 2: Neovim plugin (interactive)",
+      "summary": "Load JSON → render compact tree with an index map → handle keys → jump with drift tolerance.",
+      "nodes": ["nvim-cmd-register", "nvim-open", "nvim-parser", "nvim-window", "nvim-tree-render", "nvim-tree-compact", "nvim-jump", "nvim-resolve"]
+    }
+  ],
+  "concepts": [
+    {
+      "name": "Flow artifact",
+      "summary": "A `.flow.json` file. Required: schemaVersion, id, title, root node id, nodes map. Optional decision-quality metadata: thesis, investigation, sections, concepts, impact, testScenarios, confidenceChecks.",
+      "locations": ["packages/cli/internal/core/schema.go"],
+      "nodes": ["schema-flow"],
+      "confidence": "observed"
+    },
+    {
+      "name": "FlowNode",
+      "summary": "One jumpable location: label, kind, file, line, plus optional symbol/anchor used by the Neovim jump to survive line drift. Resolution records how the node was authored.",
+      "locations": ["packages/cli/internal/core/schema.go"],
+      "nodes": ["schema-node"],
+      "confidence": "observed"
+    },
+    {
+      "name": "Resolution",
+      "summary": "How a node was authored: lsp | ast | search | llm_inferred | llm_validated | manual. `build` emits \"search\"; the skill tells agents to emit \"manual\"; normalizeAndResolve defaults missing values to \"llm_inferred\".",
+      "locations": ["packages/cli/internal/core/schema.go", "packages/cli/internal/core/build.go"],
+      "nodes": ["schema-allowed", "build-normalize"],
+      "confidence": "observed"
+    },
+    {
+      "name": "Anchor",
+      "summary": "A short substring of the target line. The Neovim jump looks for anchor first, then symbol, then falls back to the recorded line. This is what makes flows survive code drift.",
+      "locations": ["packages/nvim/lua/flowtrace/actions.lua"],
+      "nodes": ["nvim-resolve"],
+      "confidence": "observed"
+    },
+    {
+      "name": "Index (Lua tree)",
+      "summary": "While rendering the tree buffer, the Lua renderer builds a row→node map so cursor-line lookups during jump/preview/ask are O(1).",
+      "locations": ["packages/nvim/lua/flowtrace/tree.lua"],
+      "nodes": ["nvim-tree-render", "nvim-tree-compact"],
+      "confidence": "observed"
+    }
+  ],
+  "testScenarios": [
+    {
+      "name": "Round-trip: build → validate → print",
+      "summary": "`flowtrace build \"...\"` produces a JSON file that ValidateFlow accepts and PrintFlow renders without panicking.",
+      "existing": "implicit (no unit tests checked in)",
+      "confidence": "inferred"
+    },
+    {
+      "name": "Drift-tolerant jump",
+      "summary": "If a node's recorded line no longer matches the source but the anchor substring still appears in the file, the Neovim jump lands on the anchor line, not the stale line.",
+      "existing": "behavioral, no automated test",
+      "confidence": "inferred"
+    },
+    {
+      "name": "Validation catches dangling refs",
+      "summary": "A node whose file does not exist, whose line exceeds the file length, or whose child/branch target is not in the nodes map causes ValidateFlow to return an error and the artifact is rejected.",
+      "existing": "implicit",
+      "confidence": "observed-in-source"
+    }
+  ],
+  "confidenceChecks": [
+    {
+      "name": "State the system model",
+      "prompt": "Summarize FlowTrace in one sentence as: artifact + producers + validator + consumers. Who is each?",
+      "success": "Names the .flow.json artifact, the two producers (agent-authored vs `flowtrace build`), ValidateFlow as the contract gate, and the two consumers (CLI `print` and the Neovim plugin).",
+      "node": "thesis-artifact"
+    },
+    {
+      "name": "Trace the authoring split",
+      "prompt": "What does `resolution` tell you about who wrote a node, and where in the code is that distinction made?",
+      "success": "Identifies that `build` writes `\"search\"` (build.go:199), the skill instructs agents to write `\"manual\"`, and normalizeAndResolve defaults to `\"llm_inferred\"` (build.go:479). allowedResolution gates the set.",
+      "node": "schema-allowed"
+    },
+    {
+      "name": "Explain drift tolerance",
+      "prompt": "If a file is edited and node.line is now wrong, what happens when the user presses <CR> on that node in Neovim?",
+      "success": "Walks through resolve_location: anchor substring lookup → symbol lookup → fall back to node.line. Names actions.lua:75 as the location.",
+      "node": "nvim-resolve"
+    },
+    {
+      "name": "Predict an omitted touchpoint",
+      "prompt": "If you wanted to add a new node `kind` or `resolution`, which files MUST you touch?",
+      "success": "Names schema.go (FlowNode + allowedResolution maps) and ValidateFlow, and notes the Lua side is permissive — it does not enforce these enums."
+    }
+  ],
+  "nodes": {
+    "thesis-artifact": {
+      "id": "thesis-artifact",
+      "label": "Thesis: artifact + smallest useful tooling",
+      "kind": "concept",
+      "file": "README.md",
+      "line": 1,
+      "column": 1,
+      "summary": "FlowTrace = a .flow.json artifact + a Go CLI (build/validate/print) + a Neovim viewer. The agent writes the understanding; tooling only enforces shape and existence. Start here, then read the schema, then follow either the CLI path or the Neovim path.",
+      "relevance": "core",
+      "resolution": "manual",
+      "tags": ["thesis", "orient"],
+      "children": ["schema-flow", "cli-main", "nvim-cmd-register"]
+    },
+
+    "schema-flow": {
+      "id": "schema-flow",
+      "label": "Flow struct — the entire artifact contract",
+      "kind": "type",
+      "file": "packages/cli/internal/core/schema.go",
+      "line": 11,
+      "column": 1,
+      "symbol": "Flow",
+      "anchor": "type Flow struct",
+      "summary": "Every .flow.json deserializes into this. Required: schemaVersion, id, title, root, nodes. Everything else (Thesis, Investigation, Sections, Concepts, Impact, TestScenarios, ConfidenceChecks) is `omitempty` decision-quality metadata. The single source of truth — both `build` and agent-authored flows must produce shapes compatible with this struct.",
+      "relevance": "core",
+      "evidence": "Directly observed: struct definition at schema.go:11.",
+      "resolution": "manual",
+      "tags": ["contract", "data-model"],
+      "children": ["schema-node", "schema-allowed"]
+    },
+    "schema-node": {
+      "id": "schema-node",
+      "label": "FlowNode struct — one jumpable location",
+      "kind": "type",
+      "file": "packages/cli/internal/core/schema.go",
+      "line": 71,
+      "column": 1,
+      "symbol": "FlowNode",
+      "anchor": "type FlowNode struct",
+      "summary": "A node carries: label, kind, file, line (+optional column) for the jump target; optional symbol and anchor used by the Neovim resolver to tolerate drift; resolution to record provenance; children + branches to build the tree; relevance/evidence/tags for decision-quality framing.",
+      "relevance": "core",
+      "evidence": "Directly observed.",
+      "resolution": "manual",
+      "tags": ["contract"],
+      "branches": [
+        { "label": "FlowBranch (label + target node id)", "target": "schema-flow" }
+      ]
+    },
+    "schema-allowed": {
+      "id": "schema-allowed",
+      "label": "allowedResolution / allowedRelevance enums",
+      "kind": "constant",
+      "file": "packages/cli/internal/core/schema.go",
+      "line": 101,
+      "column": 1,
+      "anchor": "var allowedResolution",
+      "summary": "Gates the legal vocabulary the validator will accept. resolution ∈ {lsp, ast, search, llm_inferred, llm_validated, manual}; relevance ∈ {core, domain, supporting, boilerplate, test, unclear}. The Lua plugin does NOT enforce these — only ValidateFlow does.",
+      "relevance": "domain",
+      "evidence": "Directly observed; referenced from ValidateFlow at validate.go:59-63.",
+      "resolution": "manual",
+      "tags": ["enum", "contract"]
+    },
+
+    "cli-main": {
+      "id": "cli-main",
+      "label": "CLI entrypoint — switch over os.Args[1]",
+      "kind": "function",
+      "file": "packages/cli/cmd/flowtrace/main.go",
+      "line": 11,
+      "column": 1,
+      "symbol": "main",
+      "anchor": "func main()",
+      "summary": "Tiny dispatch: build / context / validate / print / help. Each subcommand parses its own flagset and calls into internal/core. `context` is just `build --dry-run` (it prints the matched snippets and exits without writing the JSON).",
+      "relevance": "core",
+      "resolution": "manual",
+      "tags": ["entrypoint"],
+      "children": ["cli-build-cmd", "cli-validate-cmd", "cli-print-cmd"]
+    },
+    "cli-build-cmd": {
+      "id": "cli-build-cmd",
+      "label": "runBuild — parses --root/--out/--lens/--goal/--change",
+      "kind": "function",
+      "file": "packages/cli/cmd/flowtrace/main.go",
+      "line": 53,
+      "column": 1,
+      "symbol": "runBuild",
+      "anchor": "func runBuild(args []string)",
+      "summary": "Flag-parse layer in front of core.Build. Defaults: max-files=80, max-nodes=40. --dry-run reduces this command to behaving like `context`.",
+      "relevance": "supporting",
+      "resolution": "manual",
+      "children": ["build-pipeline"]
+    },
+    "cli-validate-cmd": {
+      "id": "cli-validate-cmd",
+      "label": "runValidate — load + ValidateFlow",
+      "kind": "function",
+      "file": "packages/cli/cmd/flowtrace/main.go",
+      "line": 85,
+      "column": 1,
+      "symbol": "runValidate",
+      "anchor": "func runValidate(args []string)",
+      "summary": "Reads the JSON, unmarshals into Flow, runs ValidateFlow. Used by both end-users and by `Build` itself before it writes the output (so a freshly scaffolded artifact is always valid by construction).",
+      "relevance": "supporting",
+      "resolution": "manual",
+      "children": ["validate-entry"]
+    },
+    "cli-print-cmd": {
+      "id": "cli-print-cmd",
+      "label": "runPrint — load + PrintFlow",
+      "kind": "function",
+      "file": "packages/cli/cmd/flowtrace/main.go",
+      "line": 101,
+      "column": 1,
+      "symbol": "runPrint",
+      "anchor": "func runPrint(args []string)",
+      "summary": "Loads the JSON and renders the ASCII tree to stdout. The only non-Neovim consumer of the artifact.",
+      "relevance": "supporting",
+      "resolution": "manual",
+      "children": ["print-entry"]
+    },
+
+    "build-pipeline": {
+      "id": "build-pipeline",
+      "label": "core.Build — search → heuristic → normalize → validate → write",
+      "kind": "function",
+      "file": "packages/cli/internal/core/build.go",
+      "line": 31,
+      "column": 1,
+      "symbol": "Build",
+      "anchor": "func Build(o BuildOptions)",
+      "summary": "Pipeline: 1) tokenize request → terms; 2) walk repo, score files by term hits; 3) (if --dry-run) print snippets and stop — that's `flowtrace context`; 4) build a linear scaffold of nodes from the top-scored candidates; 5) normalize file paths and fill defaults; 6) validate (rejecting bad scaffolds early); 7) write file. Crucial nuance: the linear children-chain is intentional but rarely what you want — the skill tells agents to treat the scaffold as a disposable draft.",
+      "relevance": "core",
+      "resolution": "manual",
+      "children": ["build-terms", "build-search", "build-heuristic", "build-normalize"]
+    },
+    "build-terms": {
+      "id": "build-terms",
+      "label": "requestTerms — tokenize the user's request",
+      "kind": "function",
+      "file": "packages/cli/internal/core/build.go",
+      "line": 79,
+      "column": 1,
+      "symbol": "requestTerms",
+      "anchor": "func requestTerms(req string)",
+      "summary": "Lowercase, strip a small English stoplist, keep tokens of length ≥ 3. Crude but deterministic. The whole `build` quality ceiling is set here — if your request lacks the right keywords, search will miss the relevant files.",
+      "relevance": "supporting",
+      "resolution": "manual"
+    },
+    "build-search": {
+      "id": "build-search",
+      "label": "searchRepo — walk + score files",
+      "kind": "function",
+      "file": "packages/cli/internal/core/build.go",
+      "line": 98,
+      "column": 1,
+      "symbol": "searchRepo",
+      "anchor": "func searchRepo(root string",
+      "summary": "WalkDir skipping common noise dirs (.git, .flowtrace, node_modules, vendor, dist, build, target). For each text source file (extension allowlist in isTextSource), counts term hits per line and adds +3 per term that appears in the filename. Sorted by score desc, truncated to MaxFiles. No code parsing — pure substring scoring.",
+      "relevance": "core",
+      "resolution": "manual"
+    },
+    "build-heuristic": {
+      "id": "build-heuristic",
+      "label": "heuristicFlow — linear chain of nodes from candidates",
+      "kind": "function",
+      "file": "packages/cli/internal/core/build.go",
+      "line": 178,
+      "column": 1,
+      "symbol": "heuristicFlow",
+      "anchor": "func heuristicFlow(",
+      "summary": "Each candidate becomes one node-N whose anchor is the first matched line text. Node N becomes a child of N-1 (linear). resolution = \"search\". classifyRelevance heuristically tags by filename/text (test/spec → test, schema/model → domain, service/job/cache → core, controller/handler/route → boilerplate). Lens and impact are inferred from the request via inferLens.",
+      "relevance": "core",
+      "evidence": "Each node's resolution defaults to \"search\" here (build.go:199). The CLI scaffold's linear chain is built at lines 200-207.",
+      "resolution": "manual"
+    },
+    "build-normalize": {
+      "id": "build-normalize",
+      "label": "normalizeAndResolve — clean paths + default resolution",
+      "kind": "function",
+      "file": "packages/cli/internal/core/build.go",
+      "line": 469,
+      "column": 1,
+      "symbol": "normalizeAndResolve",
+      "anchor": "func normalizeAndResolve(",
+      "summary": "Forces forward-slash paths, clamps column ≥ 1 and line ≥ 1, fills missing resolution with \"llm_inferred\". If the recorded file does not exist on disk, looks for any candidate with the same basename and rewrites the path. This is what protects the validator from minor path mistakes in an LLM-authored scaffold.",
+      "relevance": "supporting",
+      "resolution": "manual"
+    },
+
+    "authoring-skill-readme": {
+      "id": "authoring-skill-readme",
+      "label": "SKILL: agent does the understanding — write resolution=\"manual\"",
+      "kind": "doc",
+      "file": "skills/flowtrace/SKILL.md",
+      "line": 19,
+      "column": 1,
+      "anchor": "Core principle",
+      "summary": "The other authoring path. The skill is explicit: do NOT start by asking the CLI to explore for you. Read the code, decide the tree, write the JSON with resolution=\"manual\", then validate. CLI scaffolds (`flowtrace build`) are disposable drafts.",
+      "relevance": "core",
+      "resolution": "manual",
+      "tags": ["authoring"]
+    },
+
+    "validate-entry": {
+      "id": "validate-entry",
+      "label": "ValidateFlow — schema + cross-ref + filesystem",
+      "kind": "function",
+      "file": "packages/cli/internal/core/validate.go",
+      "line": 9,
+      "column": 1,
+      "symbol": "ValidateFlow",
+      "anchor": "func ValidateFlow(f *Flow",
+      "summary": "Required-fields check; root exists in nodes; section/concept/confidenceCheck node refs resolve; for each node: id matches map key, required fields non-empty, resolution and relevance are in the allowed enums, file exists on disk and is not a directory, line ≤ file line count, every child id and branch target id exists.",
+      "relevance": "core",
+      "evidence": "Directly observed.",
+      "resolution": "manual",
+      "tags": ["contract-enforcement"],
+      "children": ["validate-node-fs", "validate-counts"]
+    },
+    "validate-node-fs": {
+      "id": "validate-node-fs",
+      "label": "Per-node filesystem + line-bounds check",
+      "kind": "step",
+      "file": "packages/cli/internal/core/validate.go",
+      "line": 65,
+      "column": 1,
+      "anchor": "path := filepath.Join(root, filepath.Clean(n.File))",
+      "summary": "os.Stat the file relative to --root; reject directories; countLines; reject if node.Line > lines. This is why an authored flow can't ship with a node pointing past EOF or at a non-existent path.",
+      "relevance": "core",
+      "resolution": "manual"
+    },
+    "validate-counts": {
+      "id": "validate-counts",
+      "label": "countLines — naive newline count",
+      "kind": "function",
+      "file": "packages/cli/internal/core/validate.go",
+      "line": 97,
+      "column": 1,
+      "symbol": "countLines",
+      "anchor": "func countLines(path string)",
+      "summary": "Reads the whole file and counts '\\n'. Empty file → 1. Used only by the line-bounds check above.",
+      "relevance": "supporting",
+      "resolution": "manual"
+    },
+
+    "print-entry": {
+      "id": "print-entry",
+      "label": "PrintFlow — header + recursive tree",
+      "kind": "function",
+      "file": "packages/cli/internal/core/print.go",
+      "line": 9,
+      "column": 1,
+      "symbol": "PrintFlow",
+      "anchor": "func PrintFlow(w io.Writer",
+      "summary": "Two passes: printInvestigation prints the decision-quality metadata header (thesis, lens/goal, open questions, sections, concepts, impact, test scenarios, confidence checks). Then printNode walks from root.",
+      "relevance": "core",
+      "resolution": "manual",
+      "children": ["print-header", "print-node"]
+    },
+    "print-header": {
+      "id": "print-header",
+      "label": "printInvestigation — render decision-quality header",
+      "kind": "function",
+      "file": "packages/cli/internal/core/print.go",
+      "line": 16,
+      "column": 1,
+      "symbol": "printInvestigation",
+      "anchor": "func printInvestigation(",
+      "summary": "Renders everything except the tree: Thesis / Lens / Goal / Open questions / Sections (with counts) / Concepts / Impact / Test scenarios / Confidence checks. Each is conditional on the field being non-empty.",
+      "relevance": "supporting",
+      "resolution": "manual"
+    },
+    "print-node": {
+      "id": "print-node",
+      "label": "printNode — ASCII tree with cycle guard",
+      "kind": "function",
+      "file": "packages/cli/internal/core/print.go",
+      "line": 84,
+      "column": 1,
+      "symbol": "printNode",
+      "anchor": "func printNode(",
+      "summary": "Recursive: ├─ / └─ connectors, prints `label [kind • relevance] file:line`, recurses into children then branches. A `seen` map prevents infinite recursion on cycles — a revisit prints `↳ already shown`.",
+      "relevance": "core",
+      "resolution": "manual"
+    },
+
+    "nvim-cmd-register": {
+      "id": "nvim-cmd-register",
+      "label": "Lua plugin command registration — :FlowTraceOpen etc.",
+      "kind": "plugin",
+      "file": "packages/nvim/plugin/flowtrace.lua",
+      "line": 6,
+      "column": 1,
+      "anchor": "nvim_create_user_command('FlowTraceOpen'",
+      "summary": "Registers user commands: FlowTraceOpen <path>, FlowTraceLast, FlowTraceNext/Prev (cycle across .flowtrace/*.flow.json by mtime), FlowTraceClose, FlowTraceRefresh, FlowTraceAsk/AskFlow/Chat/ChatClear, FlowTraceAgentProvider. Guarded with vim.g.loaded_flowtrace.",
+      "relevance": "supporting",
+      "resolution": "manual",
+      "children": ["nvim-open"]
+    },
+    "nvim-open": {
+      "id": "nvim-open",
+      "label": "M.open — load JSON, open buffer, wire keys",
+      "kind": "function",
+      "file": "packages/nvim/lua/flowtrace/init.lua",
+      "line": 219,
+      "column": 1,
+      "symbol": "open",
+      "anchor": "function M.open(path)",
+      "summary": "Sets up highlights, records the originating window as source_win (so jumps know where to load files), loads the JSON via parser.load, opens the tree buffer + detail panel, binds keys (<CR> jump, p preview, a/A ask, f/F flows, o toggle, D detail panel, q close), wires a CursorMoved autocmd that updates the detail panel when the selection changes.",
+      "relevance": "core",
+      "resolution": "manual",
+      "children": ["nvim-parser", "nvim-window", "nvim-tree-render", "nvim-jump"]
+    },
+    "nvim-parser": {
+      "id": "nvim-parser",
+      "label": "parser.load — vim.json.decode + minimal shape check",
+      "kind": "function",
+      "file": "packages/nvim/lua/flowtrace/parser.lua",
+      "line": 3,
+      "column": 1,
+      "symbol": "load",
+      "anchor": "function M.load(path)",
+      "summary": "Reads the file, parses JSON, verifies flow.nodes is a table and flow.root is set. That is the entire Lua-side contract — note the Lua plugin does NOT enforce the Go-side allowedResolution/allowedRelevance enums; it treats unknown values permissively.",
+      "relevance": "domain",
+      "evidence": "Compare with allowedResolution gating in [[schema-allowed]] — the enforcement is Go-side, not Lua-side.",
+      "resolution": "manual"
+    },
+    "nvim-window": {
+      "id": "nvim-window",
+      "label": "window.open_buffer — topleft vertical split",
+      "kind": "function",
+      "file": "packages/nvim/lua/flowtrace/window.lua",
+      "line": 19,
+      "column": 1,
+      "symbol": "open_buffer",
+      "anchor": "function M.open_buffer()",
+      "summary": "Creates the tree buffer as nofile/wipe/no-swap, filetype=flowtrace, cursorline on, no numbers. open_detail_buffer opens a `belowright` horizontal split for the selected-node detail view (filetype=flowtrace-detail).",
+      "relevance": "supporting",
+      "resolution": "manual"
+    },
+    "nvim-tree-render": {
+      "id": "nvim-tree-render",
+      "label": "tree.render — header + tree + index map",
+      "kind": "function",
+      "file": "packages/nvim/lua/flowtrace/tree.lua",
+      "line": 231,
+      "column": 1,
+      "symbol": "render",
+      "anchor": "function M.render(flow, expanded, opts)",
+      "summary": "Builds three parallel arrays: lines (the buffer text), index (row → {id, node} so cursor lookup is O(1) — see [[index]] concept), and highlights (extmarks applied by apply_lines). Header includes title, investigation lens/goal, and add_decision_summary (thesis/sections/open questions/concepts/impact/test scenarios/confidence checks counts). Then either add_compact_node (one row per node) or add_verbose_node (three rows per node).",
+      "relevance": "core",
+      "resolution": "manual",
+      "children": ["nvim-tree-compact"]
+    },
+    "nvim-tree-compact": {
+      "id": "nvim-tree-compact",
+      "label": "add_compact_node — one-line-per-node tree with cycle guard",
+      "kind": "function",
+      "file": "packages/nvim/lua/flowtrace/tree.lua",
+      "line": 79,
+      "column": 1,
+      "symbol": "add_compact_node",
+      "anchor": "local function add_compact_node",
+      "summary": "Recursive line builder. Emits prefix + connector (├─/└─) + open/closed marker (▾/▸) + optional `↳ branch_label:` + `file:line  label [kind • relevance]` + `{N steps, M branches}` if collapsed + `{already shown}` on cycle revisit. Children = node.children ∪ node.branches (branches carry a label).",
+      "relevance": "core",
+      "resolution": "manual"
+    },
+    "nvim-jump": {
+      "id": "nvim-jump",
+      "label": "actions.jump — pick code window, edit file, place cursor",
+      "kind": "function",
+      "file": "packages/nvim/lua/flowtrace/actions.lua",
+      "line": 85,
+      "column": 1,
+      "symbol": "jump",
+      "anchor": "function M.jump(state)",
+      "summary": "Reads cursor row → state.index → node; locates a code window (reuses source_win, else picks any non-tree-like window in the tabpage, else creates a rightbelow vertical split); :edit's the file; calls resolve_location and places the cursor.",
+      "relevance": "core",
+      "resolution": "manual",
+      "children": ["nvim-resolve"]
+    },
+    "nvim-resolve": {
+      "id": "nvim-resolve",
+      "label": "resolve_location — anchor → symbol → line (drift tolerance)",
+      "kind": "function",
+      "file": "packages/nvim/lua/flowtrace/actions.lua",
+      "line": 75,
+      "column": 1,
+      "symbol": "resolve_location",
+      "anchor": "local function resolve_location",
+      "summary": "The reason a FlowTrace doesn't rot the moment the code moves. Order: 1) plain substring match for node.anchor; 2) plain substring match for node.symbol; 3) whitespace-tolerant pattern match as a second pass; 4) fall back to node.line / node.column. This is why authored nodes should carry a stable anchor (a short, unique substring of the target line).",
+      "relevance": "core",
+      "evidence": "Directly observed: find_in_buffer does plain match first (actions.lua:60-63), then a whitespace-tolerant pattern fallback (actions.lua:66-70). resolve_location chains anchor → symbol → line at actions.lua:76-82.",
+      "resolution": "manual",
+      "tags": ["drift-tolerance", "design-decision"]
+    }
+  }
+}

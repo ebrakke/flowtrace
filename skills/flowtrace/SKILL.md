@@ -59,10 +59,27 @@ If Go is unavailable or installation fails, continue researching and writing the
 
 1. Confirm the repository root and the flow to trace. Ask a brief clarification only if the request is ambiguous.
 2. Ensure the `flowtrace` CLI is available using the check above.
-3. Research the codebase yourself. Use your own tools to find entrypoints, handlers, services, data transformations, branches, downstream calls, response formatting, and important alternatives. Follow real code references; do not rely on FlowTrace to infer them.
-4. If the request is for a PR, branch, diff, or changeset, use the changeset workflow below before deciding the final tree.
-5. Decide the walkthrough structure: root node, important child order, branch targets, labels, summaries, and resolution values.
-6. Write `.flowtrace/<slug>.flow.json` yourself. Create the directory if needed. Prefer stable jump metadata on every node:
+3. Frame the investigation before building the artifact. Do this silently unless clarification is needed:
+   - Identify the user's decision or job-to-be-done: understand, debug, refactor, remove/change a concept, review a diff, or validate behavior.
+   - Name the central symptom, concept, or change. Examples: cache miss, snapshot versioning, indexing job, auth boundary, schema migration.
+   - Pick a lens: `subsystem-understanding`, `bug-investigation`, `change-impact`, or `test-understanding`.
+   - Decide what should be treated as core workflow vs domain/data model vs supporting boilerplate.
+   - Identify what a confident user would need to know next: concepts, blast radius, missing/untouched areas, and behavioral test scenarios.
+4. Research the codebase yourself. Use your own tools to find entrypoints, handlers, services, data transformations, branches, downstream calls, response formatting, and important alternatives. Follow real code references; do not rely on FlowTrace to infer them.
+5. If the request is for a PR, branch, diff, or changeset, use the changeset workflow below before deciding the final tree.
+6. Decide the walkthrough structure: root node, important child order, branch targets, labels, summaries, and resolution values. Start with the most decision-relevant path, not necessarily the broadest request path. Keep boilerplate available but do not let it dominate the tree unless it plausibly affects the user's symptom/change.
+7. Write `.flowtrace/<slug>.flow.json` yourself. Create the directory if needed. Prefer decision-oriented metadata as well as stable jump metadata:
+
+   - Add `thesis`: a one-sentence system model. For broad “understand deeply” requests, organize the artifact around this thesis rather than defaulting to the lowest-level entrypoint.
+   - Add `investigation` with the user's goal, lens (`subsystem-understanding`, `bug-investigation`, `change-impact`, or `test-understanding`), original question, and useful open questions.
+   - Add `sections` to group node ids by lifecycle/concept, such as core workflow, domain model/contracts, producers, consumers, change impact, and confidence checks.
+   - Add `relevance` to each node (`core`, `domain`, `supporting`, `boilerplate`, `test`, or `unclear`) so viewers can separate important workflow from noise.
+   - Add top-level `concepts` when domain/data-model concepts are central. Include `nodes` on each concept when possible so concepts are navigable.
+   - Add `impact` when the user is considering a refactor or removal/change of a concept.
+   - Add `testScenarios` when validation confidence matters.
+   - Add `confidenceChecks` for broad understanding requests. These should be concrete prompts the user can use to verify their mental model, not generic test names.
+
+   Example node:
 
    ```json
    {
@@ -75,29 +92,50 @@ If Go is unavailable or installation fails, continue researching and writing the
      "symbol": "runQuery",
      "anchor": "function runQuery(",
      "summary": "Validates, executes, and formats the query.",
+     "relevance": "core",
+     "evidence": "This service coordinates the behavior the user is investigating.",
+     "tags": ["core-workflow"],
      "resolution": "manual",
      "children": ["node-2"]
    }
    ```
 
-7. Validate the finished artifact:
+8. Validate the finished artifact:
 
    ```bash
    flowtrace validate --root . .flowtrace/<slug>.flow.json
    ```
 
-8. Preview the tree in the terminal:
+9. Preview the tree in the terminal:
 
    ```bash
    flowtrace print .flowtrace/<slug>.flow.json
    ```
 
-9. Fix any validation/preview issues by editing the JSON. Repeat validation until clean.
-10. Tell the user how to open it in Neovim:
+10. Fix any validation/preview issues by editing the JSON. Repeat validation until clean.
+11. Tell the user how to open it in Neovim:
 
    ```vim
    :FlowTraceOpen .flowtrace/<slug>.flow.json
    ```
+
+## Framing checklist
+
+Use this checklist while researching and authoring. The artifact should help the user build decision-quality understanding, not just enumerate related files.
+
+- **Decision:** What is the user trying to decide or safely do after reading this trace?
+- **Center of gravity:** What symptom, domain concept, field, job, or behavior is the trace organized around?
+- **Core path:** Which nodes directly create, mutate, read, or validate the behavior under investigation?
+- **Boilerplate boundary:** Which handlers, auth, parsing, adapters, or generic CRUD code are only context unless the symptom points there?
+- **Domain model:** Which persisted entities, fields, schemas, cache keys, indexes, or external resources determine correctness?
+- **Blast radius:** If the user changes/removes the central concept, which service, domain, schema, job, UI/API, cache, and test areas should be inspected?
+- **Negative space:** What would be suspicious if a proposed change did *not* touch it?
+- **Test shape:** What behavioral scenarios would prove the current flow or proposed change is correct?
+- **Evidence:** For every non-obvious conclusion, mark whether it is directly observed, inferred, uncertain, or needs runtime/test validation.
+
+Prefer a smaller trace with strong relevance over a broad trace that explains boilerplate. If a broad entrypoint is included only to orient the user, label it `boilerplate` or `supporting` and make the service/domain path easy to find.
+
+For broad “understand deeply how X works” requests, do **not** default the root to `main`, a controller, or the first request entrypoint unless that is genuinely the best mental model. First state the system thesis, then structure the trace by lifecycle/concepts/contracts. Use code nodes as evidence for that model. Node summaries should explain why the node matters to the thesis, not just what the function mechanically does.
 
 ## Changeset / PR workflow
 
@@ -129,7 +167,7 @@ Use this mode when the user asks for a FlowTrace of a pull request, branch, patc
 These are optional helpers, not the primary workflow:
 
 - `flowtrace context --root . "request"` prints candidate search snippets if you want a quick hint list.
-- `flowtrace build --root . --out .flowtrace/<slug>.flow.json "request"` creates a rough search-based scaffold.
+- `flowtrace build --root . --out .flowtrace/<slug>.flow.json --lens change-impact --change "remove versioning" "request"` creates a rough search-based scaffold with decision-oriented sections.
 
 Treat CLI-generated scaffolds as disposable drafts. Review and rewrite them before presenting a final walkthrough.
 
@@ -141,6 +179,6 @@ Return a concise summary with:
 - validation command and result
 - terminal preview command used
 - Neovim open command
-- caveats for nodes marked `search` or `llm_inferred`
+- caveats for nodes marked `search`, `llm_inferred`, or relevance `unclear`
 
 If validation fails, report the validation error and do not present the artifact as ready to use.

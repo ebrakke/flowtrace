@@ -19,6 +19,36 @@ func ValidateFlow(f *Flow, root string) error {
 	if _, ok := f.Nodes[f.Root]; !ok {
 		return fmt.Errorf("root node %q not found", f.Root)
 	}
+	for _, section := range f.Sections {
+		if section.Title == "" {
+			return fmt.Errorf("section title is required")
+		}
+		for _, nodeID := range section.Nodes {
+			if _, ok := f.Nodes[nodeID]; !ok {
+				return fmt.Errorf("section %q node %q not found", section.Title, nodeID)
+			}
+		}
+	}
+	for _, concept := range f.Concepts {
+		if concept.Name == "" {
+			return fmt.Errorf("concept name is required")
+		}
+		for _, nodeID := range concept.Nodes {
+			if _, ok := f.Nodes[nodeID]; !ok {
+				return fmt.Errorf("concept %q node %q not found", concept.Name, nodeID)
+			}
+		}
+	}
+	for _, check := range f.ConfidenceChecks {
+		if check.Name == "" {
+			return fmt.Errorf("confidence check name is required")
+		}
+		if check.Node != "" {
+			if _, ok := f.Nodes[check.Node]; !ok {
+				return fmt.Errorf("confidence check %q node %q not found", check.Name, check.Node)
+			}
+		}
+	}
 	for id, n := range f.Nodes {
 		if n.ID != id {
 			return fmt.Errorf("node map key %q does not match node id %q", id, n.ID)
@@ -28,6 +58,9 @@ func ValidateFlow(f *Flow, root string) error {
 		}
 		if !allowedResolution[n.Resolution] {
 			return fmt.Errorf("node %q has invalid resolution %q", id, n.Resolution)
+		}
+		if n.Relevance != "" && !allowedRelevance[n.Relevance] {
+			return fmt.Errorf("node %q has invalid relevance %q", id, n.Relevance)
 		}
 		path := filepath.Join(root, filepath.Clean(n.File))
 		info, err := os.Stat(path)

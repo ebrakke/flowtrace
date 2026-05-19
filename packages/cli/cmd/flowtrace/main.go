@@ -38,7 +38,7 @@ func usage() {
 	fmt.Fprintln(os.Stderr, `flowtrace - build jumpable code walkthroughs
 
 Usage:
-  flowtrace build [options] "request"
+  flowtrace build [options] [--lens LENS] [--goal GOAL] [--change CHANGE] "request"
   flowtrace context [options] "request"
   flowtrace validate [--root DIR] FILE.flow.json
   flowtrace print FILE.flow.json
@@ -57,13 +57,16 @@ func runBuild(args []string) error {
 	maxFiles := fs.Int("max-files", 80, "maximum candidate files")
 	maxNodes := fs.Int("max-nodes", 40, "maximum flow nodes")
 	dryRun := fs.Bool("dry-run", false, "print candidate context but do not write artifact")
+	goal := fs.String("goal", "", "investigation goal to record in the artifact")
+	lens := fs.String("lens", "", "investigation lens: subsystem-understanding, bug-investigation, change-impact, or test-understanding")
+	change := fs.String("change", "", "change being considered for impact mapping")
 	if err := fs.Parse(args); err != nil {
 		return err
 	}
 	if fs.NArg() != 1 {
 		return fmt.Errorf("build requires one natural-language request")
 	}
-	return core.Build(core.BuildOptions{Root: *root, Out: *out, MaxFiles: *maxFiles, MaxNodes: *maxNodes, DryRun: *dryRun, Request: fs.Arg(0)})
+	return core.Build(core.BuildOptions{Root: *root, Out: *out, MaxFiles: *maxFiles, MaxNodes: *maxNodes, DryRun: *dryRun, Request: fs.Arg(0), Goal: *goal, Lens: *lens, Change: *change})
 }
 
 func runContext(args []string) error {
